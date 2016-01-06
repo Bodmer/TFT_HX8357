@@ -79,8 +79,8 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
   #define CS_H PORTG|=_BV(1)
   #define CS_L PORTG&= ~_BV(1)
 #else
-  #define CS_H
-  #define CS_L
+  #define CS_H // We do not define this so CS will not be set high
+  #define CS_L PORTG&= ~_BV(1)
 #endif
 
 #ifdef FAST_RS
