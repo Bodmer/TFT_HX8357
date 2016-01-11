@@ -1,5 +1,6 @@
 /*
  * Pong graphics demo only - not a playable game yet...
+ * 
  * Original Code from https://github.com/rparrett/pongclock
  *
  */
@@ -12,13 +13,13 @@
 
 TFT_HX8357 tft = TFT_HX8357();       // Invoke custom library
 
-int16_t h = 240;
-int16_t w = 320;
+int16_t h = 320;
+int16_t w = 480;
 
 int dly = 5;
 
-int16_t paddle_h = 30;
-int16_t paddle_w = 4;
+int16_t paddle_h = 40;
+int16_t paddle_w = 5;
 
 int16_t lpaddle_x = 0;
 int16_t rpaddle_x = w - paddle_w;
@@ -60,7 +61,7 @@ void setup(void) {
    
   tft.init();
 
-  tft.setRotation(2);
+  tft.setRotation(1);
 
   tft.fillScreen(TFT_BLUE);
 
@@ -101,7 +102,7 @@ void midline() {
   if ((ball_x<dashline_x-ball_w) && (ball_x > dashline_x+dashline_w)) return;
 
   // Quick way to draw a dashed line
-  tft.setWindow(dashline_x,0,dashline_x+dashline_w-1,h);
+  tft.setWindow(dashline_x,0,dashline_x+dashline_w-1,h-1);
   
   for(int16_t i = 0; i < dashline_n; i+=2) {
     tft.pushColor(WHITE, dashline_w*dashline_h); // push dash pixels

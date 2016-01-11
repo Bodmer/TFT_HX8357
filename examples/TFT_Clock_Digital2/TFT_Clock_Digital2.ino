@@ -1,17 +1,19 @@
 /*
  An example digital clock using a TFT LCD screen to show the time.
- Demonstrates use of the font printing routines. (Time updates but date does not.)
+ Demonstrates use of the font printing routines.
 
  It uses the time of compile/upload to set the time
  For a more accurate clock, it would be better to use the RTClib library.
  But this is just a demo...
 
+ Uses font 6 and font 8
+ 
  Make sure all the required fonts are loaded by editting the
  User_Setup.h file in the TFT_HX8357 library folder.
 
   #########################################################################
   ###### DON'T FORGET TO UPDATE THE User_Setup.h FILE IN THE LIBRARY ######
-  ######       TO SELECT THE FONTS AND PINS YOU USE, SEE ABOVE       ######
+  ######            TO SELECT THE FONTS YOU USE, SEE ABOVE           ######
   #########################################################################
 
  Based on clock sketch by Gilchrist 6/2/2014 1.0

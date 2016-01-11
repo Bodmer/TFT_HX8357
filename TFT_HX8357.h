@@ -1,6 +1,6 @@
 /***************************************************
   Arduino TFT graphics library targetted at the
-  Mega boards.
+  Mega boards and HX8357B/C display drivers.
 
   This library has been derived from the Adafruit_GFX
   library and the associated driver library. See text
@@ -11,19 +11,19 @@
   proportional fonts.
 
   The larger fonts are Run Length Encoded to reduce
-  their FLASH footprint.
+  their FLASH footprint and speed rendering.
 
  ****************************************************/
 
 // Include header file that defines the fonts loaded and the pins to be used
 #include <User_Setup.h>
 
-// Stop fonts being loaded multiple times
+// Stop fonts etc being loaded multiple times
 #ifndef _TFT_HX8357H_
 #define _TFT_HX8357H_
 
 // Only load the fonts defined in User_Setup.h (to save space)
-// Set flag so RLE rendering code is optionally compiled
+// Sets flag so RLE rendering code is optionally compiled
 
 #ifdef LOAD_GLCD
   #include <Fonts/glcdfont.c>
@@ -59,22 +59,27 @@
   #endif
 #endif
 
-#include <Arduino.h>
-#include <Print.h>
-
 #include <avr/pgmspace.h>
+#include <Arduino.h>
+//#include <Print.h>
+
+#include <Fonts/GFXFF/gfxfont.h>
 
 // Swap any type
 template <typename T> static inline void
 swap(T& a, T& b) { T t = a; a = b; b = t; }
 
+
 //These define the ports and port bits used for the write, chip select (CS) and data/command (RS) lines
 #define WR_L PORTG&=~_BV(2)
 #define WR_H PORTG|=_BV(2)
 #define WR_STB PORTG&=~_BV(2);PORTG|=_BV(2)
+
+// Chip select must be toggled during setup
 #define SETUP_CS_H PORTG|=_BV(1)
 #define SETUP_CS_L PORTG&= ~_BV(1)
 
+// Chip select can optionally be kept low after setup
 #ifndef KEEP_CS_LOW
   #define CS_H PORTG|=_BV(1)
   #define CS_L PORTG&= ~_BV(1)
@@ -83,6 +88,7 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
   #define CS_L PORTG&= ~_BV(1)
 #endif
 
+// If pin 4 is hard wired to pin 38 we benefit from all controls on PORTG
 #ifdef FAST_RS
   #define RS_L PORTG&= ~_BV(5)
   #define RS_H PORTG|=_BV(5)
@@ -93,6 +99,8 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 
 // These are the port settings if the Mega Pin 4 is wired direct to pin 38,
 // this hardware hack puts all important control pins on one port (PORTG)
+// Conveniently other PORTG pins are not used on the Mega so we can set
+// other bits with impunity!
 //                          CS-----.
 //                          WR----.|
 //                          RS-.  ||
@@ -103,22 +111,7 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 #define CSL_RSH_WRH PORTG = B11111101
 
 
-//These enumerate the text plotting alignment (reference datum point)
-#define TL_DATUM 0 // Top left (default)
-#define TC_DATUM 1 // Top centre
-#define TR_DATUM 2 // Top right
-#define ML_DATUM 3 // Middle left
-#define CL_DATUM 3 // Centre left, same as above
-#define MC_DATUM 4 // Middle centre
-#define CC_DATUM 4 // Centre centre, same as above
-#define MR_DATUM 5 // Middle right
-#define CR_DATUM 5 // Centre right, same as above
-#define BL_DATUM 6 // Bottom left
-#define BC_DATUM 7 // Bottom centre
-#define BR_DATUM 8 // Bottom right
-
-
-
+// These register enumerations are not all used, but kept for possible future use
 #define HX8357D 0xD
 #define HX8357B 0xB
 
@@ -190,100 +183,70 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 #define HX8357B_SETGAMMA 0xC8
 #define HX8357B_SETPANELRELATED  0xE9
 
-// New color definitions use for all my libraries
-#define TFT_BLACK       0x0000      /*   0,   0,   0 */
-#define TFT_NAVY        0x000F      /*   0,   0, 128 */
-#define TFT_DARKGREEN   0x03E0      /*   0, 128,   0 */
-#define TFT_DARKCYAN    0x03EF      /*   0, 128, 128 */
-#define TFT_MAROON      0x7800      /* 128,   0,   0 */
-#define TFT_PURPLE      0x780F      /* 128,   0, 128 */
-#define TFT_OLIVE       0x7BE0      /* 128, 128,   0 */
-#define TFT_LIGHTGREY   0xC618      /* 192, 192, 192 */
-#define TFT_DARKGREY    0x7BEF      /* 128, 128, 128 */
-#define TFT_BLUE        0x001F      /*   0,   0, 255 */
-#define TFT_GREEN       0x07E0      /*   0, 255,   0 */
-#define TFT_CYAN        0x07FF      /*   0, 255, 255 */
-#define TFT_RED         0xF800      /* 255,   0,   0 */
-#define TFT_MAGENTA     0xF81F      /* 255,   0, 255 */
-#define TFT_YELLOW      0xFFE0      /* 255, 255,   0 */
-#define TFT_WHITE       0xFFFF      /* 255, 255, 255 */
-#define TFT_ORANGE      0xFD20      /* 255, 165,   0 */
-#define TFT_GREENYELLOW 0xAFE5      /* 173, 255,  47 */
-#define TFT_PINK        0xF81F
 
-// Color definitions for backwards compatibility
-#define HX8357_BLACK       0x0000      /*   0,   0,   0 */
-#define HX8357_NAVY        0x000F      /*   0,   0, 128 */
-#define HX8357_DARKGREEN   0x03E0      /*   0, 128,   0 */
-#define HX8357_DARKCYAN    0x03EF      /*   0, 128, 128 */
-#define HX8357_MAROON      0x7800      /* 128,   0,   0 */
-#define HX8357_PURPLE      0x780F      /* 128,   0, 128 */
-#define HX8357_OLIVE       0x7BE0      /* 128, 128,   0 */
-#define HX8357_LIGHTGREY   0xC618      /* 192, 192, 192 */
-#define HX8357_DARKGREY    0x7BEF      /* 128, 128, 128 */
-#define HX8357_BLUE        0x001F      /*   0,   0, 255 */
-#define HX8357_GREEN       0x07E0      /*   0, 255,   0 */
-#define HX8357_CYAN        0x07FF      /*   0, 255, 255 */
-#define HX8357_RED         0xF800      /* 255,   0,   0 */
-#define HX8357_MAGENTA     0xF81F      /* 255,   0, 255 */
-#define HX8357_YELLOW      0xFFE0      /* 255, 255,   0 */
-#define HX8357_WHITE       0xFFFF      /* 255, 255, 255 */
-#define HX8357_ORANGE      0xFD20      /* 255, 165,   0 */
-#define HX8357_GREENYELLOW 0xAFE5      /* 173, 255,  47 */
-#define HX8357_PINK        0xF81F
+// This is a structure to conveniently hold infomation on the fonts
+// Stores pointer to font character image address table, width table and height
 
 typedef struct {
 	const unsigned char *chartbl;
 	const unsigned char *widthtbl;
 	unsigned       char height;
+	unsigned       char baseline;
 	} fontinfo;
 
-// This is a structure to conveniently hold infomation on the fonts
-// Stores font character image address pointer, width table and height
-
+// Now fill the structure
 const PROGMEM fontinfo fontdata [] = {
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
 
-   { 0, 0, 8 },
+   // GLCD font (Font 1) does not have all parameters
+   { 0, 0, 8, 7 },
 
   #ifdef LOAD_FONT2
-   { (const unsigned char *)chrtbl_f16, widtbl_f16, chr_hgt_f16},
+   { (const unsigned char *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16},
   #else
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
   #endif
 
-   { 0, 0, 0 },
+   // Font 3 current unused
+   { 0, 0, 0, 0 },
 
   #ifdef LOAD_FONT4
-   { (const unsigned char *)chrtbl_f32, widtbl_f32, chr_hgt_f32},
+   { (const unsigned char *)chrtbl_f32, widtbl_f32, chr_hgt_f32, baseline_f32},
   #else
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
   #endif
 
-   { 0, 0, 0 },
+   // Font 5 current unused
+   { 0, 0, 0, 0 },
 
   #ifdef LOAD_FONT6
-   { (const unsigned char *)chrtbl_f64, widtbl_f64, chr_hgt_f64},
+   { (const unsigned char *)chrtbl_f64, widtbl_f64, chr_hgt_f64, baseline_f64},
   #else
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
   #endif
 
   #ifdef LOAD_FONT7
-   { (const unsigned char *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s},
+   { (const unsigned char *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s, baseline_f7s},
   #else
-   { 0, 0, 0 },
+   { 0, 0, 0, 0 },
   #endif
 
   #ifdef LOAD_FONT8
-   { (const unsigned char *)chrtbl_f72, widtbl_f72, chr_hgt_f72}
+   { (const unsigned char *)chrtbl_f72, widtbl_f72, chr_hgt_f72, baseline_f72}
   #else
-   { 0, 0, 0 }
+   { 0, 0, 0, 0 }
   #endif
 };
 
 
-// Class functions and variables
-class TFT_HX8357 : public Print {
+// Class member functions and variables
+class TFT_HX8357
+
+#ifdef PRINT_CLASS 
+ : public Print
+#endif
+
+{
 
  public:
 
@@ -335,7 +298,12 @@ class TFT_HX8357 : public Print {
            setTextWrap(boolean wrap),
            setTextDatum(uint8_t datum),
            setTextPadding(uint16_t x_width),
-
+#ifdef LOAD_GFXFF
+           setFreeFont(const GFXfont *f = NULL), //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+           setTextFont(const GFXfont *f = NULL), // Alternative to setFont() function
+#else
+           setFreeFont(uint8_t font), //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#endif
            writecommand(uint8_t c),
            writedata(uint8_t d),
            commandList(const uint8_t *addr);
@@ -358,29 +326,38 @@ class TFT_HX8357 : public Print {
            textWidth(char *string, int font),
            fontHeight(int font);
 
- virtual  size_t write(uint8_t);
+#ifdef PRINT_CLASS 
+  virtual  size_t write(uint8_t);
+#endif
 
  private:
-
+          // Sketches should use setWindow() as this may leave Chip Select low...
     void  setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 
   uint8_t  tabcolor;
 
  protected:
 
-  int16_t  _width, _height, // Display w/h as modified by current rotation
-           cursor_x, cursor_y, padX;
+  int16_t  _width, _height,           // Display w/h as modified by current rotation
+           cursor_x, cursor_y, padX;  // Text cursor position and width padding
 
   uint16_t textcolor, textbgcolor, fontsloaded;
 
-  uint8_t  textfont,
-           textsize,
-           textdatum,
-           rotation;
+  uint8_t  glyph_ab,  // glyph height above baseline
+           glyph_bb,  // glyph height below baseline
+           textfont,  // Current selected font
+           textsize,  // Current font size multiplier
+           textdatum, // Text reference datum
+           rotation;  // Display rotation (0-3)
 
-  int8_t  _cs, _rs, _rst, _wr, _fcs;
+  int8_t  _cs, _rs, _rst, _wr, _fcs; // Control lines
 
   boolean  textwrap; // If set, 'wrap' text at right edge of display
+
+#ifdef LOAD_GFXFF
+  GFXfont
+    *gfxFont; //<<<<<<<<<<<<<<<<<<<<<<<<<<
+#endif
 
 };
 

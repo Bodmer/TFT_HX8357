@@ -1,22 +1,20 @@
 /* Modified by Bodmer to be an example for TFT_HX8357 library.
- *  
- * Original header follows:
+   This sketch uses the GLCD font only.
+
+   The performance for each test is reported to the serial
+   port at 38400 baud.
+
+   This test occupies the whole of the display therefore
+   will take twice as long as it would on a 320 x 240
+   display. Bear this in mind when making performance
+   comparisons.
+
+   Make sure all the required font is loaded by editting the
+   User_Setup.h file in the TFT_HX8357 library folder.
+
+   Original header is at the end of the sketch, some text in it is
+   not applicable to the HX8357 display supported by this example.
 */
-/***************************************************
-  This is our GFX example for the Adafruit ILI9341 Breakout and Shield
-  ----> http://www.adafruit.com/products/1651
-
-  Check out the links above for our tutorials and wiring diagrams
-  These displays use SPI to communicate, 4 or 5 pins are required to
-  interface (RST is optional)
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit and open-source hardware by purchasing
-  products from Adafruit!
-
-  Written by Limor Fried/Ladyada for Adafruit Industries.
-  MIT license, all text above must be included in any redistribution
- ****************************************************/
-
 
 #include <TFT_HX8357.h> // Hardware-specific library
 
@@ -24,9 +22,9 @@
 TFT_HX8357 tft = TFT_HX8357();
 
 void setup() {
-  Serial.begin(9600);
-  Serial.println("HX8357 Test!"); 
- 
+  Serial.begin(38400);
+  Serial.println("HX8357 Test!");
+
   tft.begin();
 
   Serial.println(F("Benchmark                Time (microseconds)"));
@@ -84,7 +82,7 @@ void setup() {
 
 
 void loop(void) {
-  for(uint8_t rotation=0; rotation<4; rotation++) {
+  for (uint8_t rotation = 0; rotation < 4; rotation++) {
     tft.setRotation(rotation);
     testText();
     delay(1000);
@@ -140,9 +138,9 @@ unsigned long testLines(uint16_t color) {
   x1 = y1 = 0;
   y2    = h - 1;
   start = micros();
-  for(x2=0; x2<w; x2+=6) tft.drawLine(x1, y1, x2, y2, color);
+  for (x2 = 0; x2 < w; x2 += 6) tft.drawLine(x1, y1, x2, y2, color);
   x2    = w - 1;
-  for(y2=0; y2<h; y2+=6) tft.drawLine(x1, y1, x2, y2, color);
+  for (y2 = 0; y2 < h; y2 += 6) tft.drawLine(x1, y1, x2, y2, color);
   t     = micros() - start; // fillScreen doesn't count against timing
 
   tft.fillScreen(TFT_BLACK);
@@ -151,9 +149,9 @@ unsigned long testLines(uint16_t color) {
   y1    = 0;
   y2    = h - 1;
   start = micros();
-  for(x2=0; x2<w; x2+=6) tft.drawLine(x1, y1, x2, y2, color);
+  for (x2 = 0; x2 < w; x2 += 6) tft.drawLine(x1, y1, x2, y2, color);
   x2    = 0;
-  for(y2=0; y2<h; y2+=6) tft.drawLine(x1, y1, x2, y2, color);
+  for (y2 = 0; y2 < h; y2 += 6) tft.drawLine(x1, y1, x2, y2, color);
   t    += micros() - start;
 
   tft.fillScreen(TFT_BLACK);
@@ -162,9 +160,9 @@ unsigned long testLines(uint16_t color) {
   y1    = h - 1;
   y2    = 0;
   start = micros();
-  for(x2=0; x2<w; x2+=6) tft.drawLine(x1, y1, x2, y2, color);
+  for (x2 = 0; x2 < w; x2 += 6) tft.drawLine(x1, y1, x2, y2, color);
   x2    = w - 1;
-  for(y2=0; y2<h; y2+=6) tft.drawLine(x1, y1, x2, y2, color);
+  for (y2 = 0; y2 < h; y2 += 6) tft.drawLine(x1, y1, x2, y2, color);
   t    += micros() - start;
 
   tft.fillScreen(TFT_BLACK);
@@ -173,9 +171,9 @@ unsigned long testLines(uint16_t color) {
   y1    = h - 1;
   y2    = 0;
   start = micros();
-  for(x2=0; x2<w; x2+=6) tft.drawLine(x1, y1, x2, y2, color);
+  for (x2 = 0; x2 < w; x2 += 6) tft.drawLine(x1, y1, x2, y2, color);
   x2    = 0;
-  for(y2=0; y2<h; y2+=6) tft.drawLine(x1, y1, x2, y2, color);
+  for (y2 = 0; y2 < h; y2 += 6) tft.drawLine(x1, y1, x2, y2, color);
 
   return micros() - start;
 }
@@ -186,8 +184,8 @@ unsigned long testFastLines(uint16_t color1, uint16_t color2) {
 
   tft.fillScreen(TFT_BLACK);
   start = micros();
-  for(y=0; y<h; y+=5) tft.drawFastHLine(0, y, w, color1);
-  for(x=0; x<w; x+=5) tft.drawFastVLine(x, 0, h, color2);
+  for (y = 0; y < h; y += 5) tft.drawFastHLine(0, y, w, color1);
+  for (x = 0; x < w; x += 5) tft.drawFastVLine(x, 0, h, color2);
 
   return micros() - start;
 }
@@ -201,9 +199,9 @@ unsigned long testRects(uint16_t color) {
   tft.fillScreen(TFT_BLACK);
   n     = min(tft.width(), tft.height());
   start = micros();
-  for(i=2; i<n; i+=6) {
+  for (i = 2; i < n; i += 6) {
     i2 = i / 2;
-    tft.drawRect(cx-i2, cy-i2, i, i, color);
+    tft.drawRect(cx - i2, cy - i2, i, i, color);
   }
 
   return micros() - start;
@@ -217,13 +215,13 @@ unsigned long testFilledRects(uint16_t color1, uint16_t color2) {
 
   tft.fillScreen(TFT_BLACK);
   n = min(tft.width(), tft.height());
-  for(i=n; i>0; i-=6) {
+  for (i = n; i > 0; i -= 6) {
     i2    = i / 2;
     start = micros();
-    tft.fillRect(cx-i2, cy-i2, i, i, color1);
+    tft.fillRect(cx - i2, cy - i2, i, i, color1);
     t    += micros() - start;
     // Outlines are not included in timing results
-    tft.drawRect(cx-i2, cy-i2, i, i, color2);
+    tft.drawRect(cx - i2, cy - i2, i, i, color2);
   }
 
   return t;
@@ -235,8 +233,8 @@ unsigned long testFilledCircles(uint8_t radius, uint16_t color) {
 
   tft.fillScreen(TFT_BLACK);
   start = micros();
-  for(x=radius; x<w; x+=r2) {
-    for(y=radius; y<h; y+=r2) {
+  for (x = radius; x < w; x += r2) {
+    for (y = radius; y < h; y += r2) {
       tft.fillCircle(x, y, radius, color);
     }
   }
@@ -247,14 +245,14 @@ unsigned long testFilledCircles(uint8_t radius, uint16_t color) {
 unsigned long testCircles(uint8_t radius, uint16_t color) {
   unsigned long start;
   int           x, y, r2 = radius * 2,
-                w = tft.width()  + radius,
-                h = tft.height() + radius;
+                      w = tft.width()  + radius,
+                      h = tft.height() + radius;
 
   // Screen is not cleared for this one -- this is
   // intentional and does not affect the reported time.
   start = micros();
-  for(x=0; x<w; x+=r2) {
-    for(y=0; y<h; y+=r2) {
+  for (x = 0; x < w; x += r2) {
+    for (y = 0; y < h; y += r2) {
       tft.drawCircle(x, y, radius, color);
     }
   }
@@ -270,7 +268,7 @@ unsigned long testTriangles() {
   tft.fillScreen(TFT_BLACK);
   n     = min(cx, cy);
   start = micros();
-  for(i=0; i<n; i+=5) {
+  for (i = 0; i < n; i += 5) {
     tft.drawTriangle(
       cx    , cy - i, // peak
       cx - i, cy + i, // bottom left
@@ -288,13 +286,13 @@ unsigned long testFilledTriangles() {
 
   tft.fillScreen(TFT_BLACK);
   start = micros();
-  for(i=min(cx,cy); i>10; i-=5) {
+  for (i = min(cx, cy); i > 10; i -= 5) {
     start = micros();
     tft.fillTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
-      tft.color565(0, i, i));
+                     tft.color565(0, i, i));
     t += micros() - start;
     tft.drawTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
-      tft.color565(i, i, 0));
+                     tft.color565(i, i, 0));
   }
 
   return t;
@@ -309,9 +307,9 @@ unsigned long testRoundRects() {
   tft.fillScreen(TFT_BLACK);
   w     = min(tft.width(), tft.height());
   start = micros();
-  for(i=0; i<w; i+=6) {
+  for (i = 0; i < w; i += 6) {
     i2 = i / 2;
-    tft.drawRoundRect(cx-i2, cy-i2, i, i, i/8, tft.color565(i, 0, 0));
+    tft.drawRoundRect(cx - i2, cy - i2, i, i, i / 8, tft.color565(i, 0, 0));
   }
 
   return micros() - start;
@@ -325,10 +323,27 @@ unsigned long testFilledRoundRects() {
 
   tft.fillScreen(TFT_BLACK);
   start = micros();
-  for(i=min(tft.width(), tft.height()); i>20; i-=6) {
+  for (i = min(tft.width(), tft.height()); i > 20; i -= 6) {
     i2 = i / 2;
-    tft.fillRoundRect(cx-i2, cy-i2, i, i, i/8, tft.color565(0, i, 0));
+    tft.fillRoundRect(cx - i2, cy - i2, i, i, i / 8, tft.color565(0, i, 0));
   }
 
   return micros() - start;
 }
+
+// Original sketch header
+/***************************************************
+  This is our GFX example for the Adafruit ILI9341 Breakout and Shield
+  ----> http://www.adafruit.com/products/1651
+
+  Check out the links above for our tutorials and wiring diagrams
+  These displays use SPI to communicate, 4 or 5 pins are required to
+  interface (RST is optional)
+  Adafruit invests time and resources providing this open source code,
+  please support Adafruit and open-source hardware by purchasing
+  products from Adafruit!
+
+  Written by Limor Fried/Ladyada for Adafruit Industries.
+  MIT license, all text above must be included in any redistribution
+ ****************************************************/
+

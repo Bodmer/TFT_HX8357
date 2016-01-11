@@ -14,7 +14,7 @@
 Updated by Bodmer for variable meter size
  */
 
-// Define meter size as multiplier ot 240 pixels wide 1.0 and 1.33 work OK
+// Define meter size as multiplier ot 240 pixels wide 1.0 and 1.3333 work OK
 #define M_SIZE 1.3333
 
 #include <TFT_HX8357.h> // Hardware-specific library

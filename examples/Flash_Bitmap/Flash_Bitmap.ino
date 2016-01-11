@@ -1,12 +1,12 @@
-// Code example derived from ILI9341_due library example
+// Code partly derived from ILI9341_due library example
 
-// Draws the 3 icons across the middle of the screen
-// then draws 300 icons at random locations, clears screen and repeats
-// This demonstrates drawing icons from FLASH and the icon drawing speed
+// Draws the 3 icons across the middle of the screen and pauses.
+// Then draws 300 icons at random locations, clears screen and repeats
+//
+// This demonstrates drawing icons from FLASH
 
-// Icons are stored in tabs ^ e.g. Alert.h etc above this line
+// Icons are stored in tabs, e.g. Alert.h etc
 // more than one icon can be in a header file.
-
 
 /*
  This sketch demonstrates loading images from arrays stored in program (FLASH) memory.
@@ -23,7 +23,6 @@
  The number and size of icons is limited by available FLASH memory. The icon array will
  use width x height x 2 bytes of FLASH, i.e. 32 x 32 icon uses ~2048 bytes
 
- A 32 x 32 pixel icon can be drawn in 2.5ms
 */
 
 #include <TFT_HX8357.h> // Hardware-specific library
@@ -57,7 +56,7 @@ void setup()
 
 void loop()
 {
-  // Loop filling and clearing screen to show draw speed
+  // Loop filling and clearing screen
   drawIcon(info, random(tft.width() - infoWidth), random(tft.height() - infoHeight), infoWidth, infoHeight);
   drawIcon(alert, random(tft.width() - alertWidth), random(tft.height() - alertHeight), alertWidth, alertHeight);
   drawIcon(close, random(tft.width() - closeWidth), random(tft.height() - closeHeight), alertWidth, closeHeight);

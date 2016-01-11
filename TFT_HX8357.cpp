@@ -1,6 +1,21 @@
 /***************************************************
-  Arduino TFT graphics library targetted at the UNO
-  and Mega boards.
+  Arduino TFT graphics library targetted at the Mega
+  board when used with one of these two display shields
+  from Banggood China:
+  
+  3.2 Inch 320 X 480 TFT LCD Display Module Support Arduino Mega2560
+  http://www.banggood.com/3_2-Inch-320-X-480-TFT-LCD-Display-Module-Support-Arduino-Mega2560-p-963574.html
+
+  or:
+
+  3.0 Inch 320 X 480 TFT LCD Display Module Support Arduino Mega2560
+  http://www.banggood.com/3_0-Inch-320-X-480-TFT-LCD-Display-Module-Support-Arduino-Mega2560-p-963573.html
+
+  These displays are also available with a Mega board:
+  
+  http://www.banggood.com/Mega2560-R3-Board-With-USB-Cable-3_2-Inch-TFT-LCD-Display-Module-p-965164.html
+  http://www.banggood.com/Mega2560-R3-Board-With-USB-Cable-3_0-Inch-TFT-LCD-Display-Module-p-967224.html
+
 
   This library has been derived from the Adafruit_GFX
   library and the associated driver library. See text
@@ -10,8 +25,13 @@
   hardware driver, the graphics funtions and the
   proportional fonts.
 
-  The larger fonts are Run Length Encoded to reduce their
-  size.
+  This library also contains a set of fonts for fast
+  rendering. The larger fonts are Run Length Encoded
+  to reduce their size.
+
+  Added 2/1/16
+  This library now includes the full font set of custom
+  fonts from the GFX library.
 
  ****************************************************/
 
@@ -62,7 +82,7 @@ TFT_HX8357::TFT_HX8357(int16_t w, int16_t h)
   _width    = w;
   _height   = h;
   rotation  = 0;
-  cursor_y  = cursor_x    = 0;
+  cursor_y  = cursor_x  = 0;
   textfont  = 1;
   textsize  = 1;
   textcolor   = 0xFFFF;
@@ -96,6 +116,9 @@ TFT_HX8357::TFT_HX8357(int16_t w, int16_t h)
   fontsloaded |= 0x0100; // Bit 8 set
 #endif
 
+#ifdef LOAD_GFXFF
+  gfxFont   = NULL;
+#endif
 }
 
 /***************************************************************************************
@@ -708,7 +731,17 @@ void TFT_HX8357::setTextSize(uint8_t s)
 void TFT_HX8357::setTextFont(uint8_t f)
 {
   textfont = (f > 0) ? f : 1; // Don't allow font 0
+#ifdef LOAD_GFXFF
+  gfxFont = NULL;
+#endif
 }
+
+#ifdef LOAD_GFXFF
+//void TFT_HX8357::setTextFont(const GFXfont *f)
+//{
+//  setFreeFont(f);
+//}
+#endif
 
 /***************************************************************************************
 ** Function name:           setTextColor
@@ -792,21 +825,45 @@ int16_t TFT_HX8357::height(void)
 ***************************************************************************************/
 int16_t TFT_HX8357::textWidth(char *string, int font)
 {
-  unsigned int str_width  = 0;
+  int16_t str_width  = 0;
   char uniCode;
   char *widthtable;
 
   if (font>1 && font<9)
+  {
   widthtable = (char *)pgm_read_word( &(fontdata[font].widthtbl ) ) - 32; //subtract the 32 outside the loop
 
-  while (*string)
+    while (*string)
+    {
+      uniCode = *(string++);
+      str_width += pgm_read_byte( widthtable + uniCode); // Normally we need to subract 32 from uniCode
+    }
+  }
+
+  else
   {
-    uniCode = *(string++);
-#ifdef LOAD_GLCD
-    if (font == 1) str_width += 6;
+
+#ifdef LOAD_GFXFF
+    if(gfxFont) // New font
+    {
+      while (*string)
+      {
+        uniCode = *(string++);
+        uniCode -= pgm_read_byte(&gfxFont->first);
+        GFXglyph *glyph  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
+        // If this is not the  last character then use xAdvance
+        if (*string) str_width += pgm_read_byte(&glyph->xAdvance);
+        // Else use the offset plus width since this can be bigger than xAdvance
+        else str_width += ((int8_t)pgm_read_byte(&glyph->xOffset) + pgm_read_byte(&glyph->width));
+      }
+    }
     else
 #endif
-    str_width += pgm_read_byte( widthtable + uniCode); // Normally we need to subract 32 from uniCode
+    {
+#ifdef LOAD_GLCD
+      while (*string++) str_width += 6;
+#endif
+    }
   }
   return str_width * textsize;
 }
@@ -825,25 +882,41 @@ uint16_t TFT_HX8357::fontsLoaded(void)
 
 /***************************************************************************************
 ** Function name:           fontHeight
-** Description:             return the height of a font
+** Description:             return the height of a font (yAdvance for free fonts)
 ***************************************************************************************/
 int16_t TFT_HX8357::fontHeight(int font)
 {
+#ifdef LOAD_GFXFF
+  if (font==1)
+  {
+    if(gfxFont) // New font
+    {
+      return pgm_read_byte(&gfxFont->yAdvance) * textsize;
+    }
+  }
+#endif
   return pgm_read_byte( &fontdata[font].height ) * textsize;
 }
 
 /***************************************************************************************
 ** Function name:           drawChar
-** Description:             draw a single character in the Adafruit GLCD font
+** Description:             draw a single character in the Adafruit GLCD or GFX font
 ***************************************************************************************/
 void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size)
 {
-#ifdef LOAD_GLCD
   if ((x >= _width)            || // Clip right
       (y >= _height)           || // Clip bottom
       ((x + 6 * size - 1) < 0) || // Clip left
       ((y + 8 * size - 1) < 0))   // Clip top
     return;
+
+#ifdef LOAD_GLCD
+//>>>>>>>>>>>>>>>>>>
+#ifdef LOAD_GFXFF
+  if(!gfxFont) { // 'Classic' built-in font
+#endif
+//>>>>>>>>>>>>>>>>>>
+
   boolean fillbg = (bg != color);
 
   if ((size==1) && fillbg)
@@ -874,7 +947,9 @@ void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
       mask <<= 1;
       PORTC = bg; PORTA = bg>>8; WR_STB;
     }
+#ifndef KEEP_CS_LOW
     CS_H;
+#endif
   }
   else
   {
@@ -903,7 +978,167 @@ void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
     }
   }
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#ifdef LOAD_GFXFF
+  } else { // Custom font
+#endif
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #endif // LOAD_GLCD
+
+#ifdef LOAD_GFXFF
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Character is assumed previously filtered by write() to eliminate
+    // newlines, returns, non-printable characters, etc.  Calling drawChar()
+    // directly with 'bad' characters of font may cause mayhem!
+
+    c -= pgm_read_byte(&gfxFont->first);
+    GFXglyph *glyph  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c]);
+    uint8_t  *bitmap = (uint8_t *)pgm_read_word(&gfxFont->bitmap);
+
+    uint16_t bo = pgm_read_word(&glyph->bitmapOffset);
+    uint8_t  w  = pgm_read_byte(&glyph->width),
+             h  = pgm_read_byte(&glyph->height),
+             xa = pgm_read_byte(&glyph->xAdvance);
+    int8_t   xo = pgm_read_byte(&glyph->xOffset),
+             yo = pgm_read_byte(&glyph->yOffset);
+    uint8_t  xx, yy, bits, bit=0;
+    int16_t  xo16, yo16;
+
+    if(size > 1) {
+      xo16 = xo;
+      yo16 = yo;
+    }
+
+    // Todo: Add character clipping here
+
+    // NOTE: THERE IS NO 'BACKGROUND' COLOR OPTION ON CUSTOM FONTS.
+    // THIS IS ON PURPOSE AND BY DESIGN.  The background color feature
+    // has typically been used with the 'classic' font to overwrite old
+    // screen contents with new data.  This ONLY works because the
+    // characters are a uniform size; it's not a sensible thing to do with
+    // proportionally-spaced fonts with glyphs of varying sizes (and that
+    // may overlap).  To replace previously-drawn text when using a custom
+    // font, use the getTextBounds() function to determine the smallest
+    // rectangle encompassing a string, erase the area with fillRect(),
+    // then draw new text.  This WILL infortunately 'blink' the text, but
+    // is unavoidable.  Drawing 'background' pixels will NOT fix this,
+    // only creates a new set of problems.  Have an idea to work around
+    // this (a canvas object type for MCUs that can afford the RAM and
+    // displays supporting setAddrWindow() and pushColors()), but haven't
+    // implemented this yet.
+
+// Here we have 3 versions of the same function
+// Comment out these two #defines to revert to original
+
+// If FAST_LINE is defined then the free fonts are rendered using horizontal lines
+// this makes rendering fonts 2-5 times faster. Particularly good for large fonts.
+// This is an elegant solution since it still uses generic functions present in the
+// stock library.
+
+// The test case for the performance test here is to print "Hello world" (lower case w)
+
+// If FAST_SHIFT is defined then a slightly faster (for AVR) shifting bit mask is used
+// Performance gaing is small but worthwhile 2%.
+
+// Free fonts don't look good when the size multiplier is >1 so we can remove code if this is not wanted
+#define FAST_HLINE
+#define FAST_SHIFT
+//#define FIXED_SIZE // Only works with FAST_LINE enabled
+
+#ifdef FIXED_SIZE
+    x+=xo; // Save 88 bytes of FLASH
+    y+=yo;
+#endif
+
+#ifdef FAST_HLINE
+
+  #ifdef FAST_SHIFT
+    uint16_t hpc = 0; // Horizontal foreground pixel count
+    for(yy=0; yy<h; yy++) {
+      for(xx=0; xx<w; xx++) {
+        if(bit == 0) {
+          bits = pgm_read_byte(&bitmap[bo++]);
+          bit  = 0x80;
+        }
+        if(bits & bit) hpc++;
+        else {
+          if (hpc) {
+#ifndef FIXED_SIZE
+            if(size == 1) drawFastHLine(x+xo+xx-hpc, y+yo+yy, hpc, color);
+            else fillRect(x+(xo16+xx-hpc)*size, y+(yo16+yy)*size, size*hpc, size, color);
+#else
+            drawFastHLine(x+xx-hpc, y+yy, hpc, color);
+#endif
+            hpc=0;
+          }
+        }
+        bit >>= 1;
+      }
+      // Draw pixels for this line as we are about to increment yy
+          if (hpc) {
+#ifndef FIXED_SIZE
+            if(size == 1) drawFastHLine(x+xo+xx-hpc, y+yo+yy, hpc, color);
+            else fillRect(x+(xo16+xx-hpc)*size, y+(yo16+yy)*size, size*hpc, size, color);
+#else
+            drawFastHLine(x+xx-hpc, y+yy, hpc, color);
+#endif
+            hpc=0;
+          }
+    }
+  #else
+    uint16_t hpc = 0; // Horizontal foreground pixel count
+    for(yy=0; yy<h; yy++) {
+      for(xx=0; xx<w; xx++) {
+        if(!(bit++ & 7)) {
+          bits = pgm_read_byte(&bitmap[bo++]);
+        }
+        if(bits & 0x80) hpc++;
+        else {
+          if (hpc) {
+            if(size == 1) drawFastHLine(x+xo+xx-hpc, y+yo+yy, hpc, color);
+            else fillRect(x+(xo16+xx-hpc)*size, y+(yo16+yy)*size, size*hpc, size, color);
+            hpc=0;
+          }
+        }
+        bits <<= 1;
+      }
+      // Draw pixels for this line as we are about to increment yy
+      if (hpc) {
+        if(size == 1) drawFastHLine(x+xo+xx-hpc, y+yo+yy, hpc, color);
+        else fillRect(x+(xo16+xx-hpc)*size, y+(yo16+yy)*size, size*hpc, size, color);
+        hpc=0;
+      }
+    }
+  #endif
+
+#else
+    for(yy=0; yy<h; yy++) {
+      for(xx=0; xx<w; xx++) {
+        if(!(bit++ & 7)) {
+          bits = pgm_read_byte(&bitmap[bo++]);
+        }
+        if(bits & 0x80) {
+          if(size == 1) {
+            drawPixel(x+xo+xx, y+yo+yy, color);
+          } else {
+            fillRect(x+(xo16+xx)*size, y+(yo16+yy)*size, size, size, color);
+          }
+        }
+        bits <<= 1;
+      }
+    }
+#endif
+#endif
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#ifdef LOAD_GLCD
+#ifdef LOAD_GFXFF
+  } // End classic vs custom font
+#endif
+#endif
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 }
 
 /***************************************************************************************
@@ -915,7 +1150,9 @@ void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
 void TFT_HX8357::setWindow(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 {
   setAddrWindow(x0, y0, x1, y1);
+#ifndef KEEP_CS_LOW
   CS_H;
+#endif
 }
 
 /***************************************************************************************
@@ -987,7 +1224,10 @@ void TFT_HX8357::drawPixel(uint16_t x, uint16_t y, uint16_t color)
   PORTC = y>>8; WR_STB;
   PORTC = y; WR_STB;
   CSL_RSL_WRL; PORTC = HX8357_RAMWR; WR_H; CSL_RSH_WRL;
-  PORTC = color; PORTA = color>>8; WR_H; CS_H;
+  PORTC = color; PORTA = color>>8; WR_H;
+#ifndef KEEP_CS_LOW
+  CS_H;
+#endif
 }
 
 #else
@@ -1010,7 +1250,9 @@ void TFT_HX8357::drawPixel(uint16_t x, uint16_t y, uint16_t color)
   PORTC = y; WR_STB;
   RS_L; PORTC = HX8357_RAMWR; WR_STB; RS_H;
   PORTC = color; PORTA = color>>8; WR_STB;
+#ifndef KEEP_CS_LOW
   CS_H;
+#endif
 }
 #endif
 /***************************************************************************************
@@ -1420,12 +1662,19 @@ void TFT_HX8357::invertDisplay(boolean i)
 ** Function name:           write
 ** Description:             draw characters piped through serial stream
 ***************************************************************************************/
+#ifdef PRINT_CLASS 
 size_t TFT_HX8357::write(uint8_t uniCode)
 {
   if (uniCode == '\r') return 1;
   unsigned int width = 0;
   unsigned int height = 0;
   //Serial.print((char) uniCode); // Debug line sends all printed TFT text to serial port
+
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#ifdef LOAD_GFXFF
+  if(!gfxFont) {
+#endif
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #ifdef LOAD_FONT2
   if (textfont == 2)
@@ -1478,8 +1727,45 @@ size_t TFT_HX8357::write(uint8_t uniCode)
     }
     cursor_x += drawChar(uniCode, cursor_x, cursor_y, textfont);
   }
+
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#ifdef LOAD_GFXFF
+  } // Custom GFX font
+  else
+  {
+
+    if(uniCode == '\n') {
+      cursor_x  = 0;
+      cursor_y += (int16_t)textsize *
+                  (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+    } else if(uniCode != '\r') {
+      uint8_t first = pgm_read_byte(&gfxFont->first);
+      if((uniCode >= first) && (uniCode <= (uint8_t)pgm_read_byte(&gfxFont->last))) {
+        uint8_t   c2    = uniCode - pgm_read_byte(&gfxFont->first);
+        GFXglyph *glyph = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c2]);
+        uint8_t   w     = pgm_read_byte(&glyph->width),
+                  h     = pgm_read_byte(&glyph->height);
+        if((w > 0) && (h > 0)) { // Is there an associated bitmap?
+          int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset);
+          if(textwrap && ((cursor_x + textsize * (xo + w)) >= _width)) {
+            // Drawing character would go off right edge; wrap to new line
+            cursor_x  = 0;
+            cursor_y += (int16_t)textsize *
+                        (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
+          }
+          drawChar(cursor_x, cursor_y, uniCode, textcolor, textbgcolor, textsize);
+        }
+        cursor_x += pgm_read_byte(&glyph->xAdvance) * (int16_t)textsize;
+      }
+    }
+
+  }
+#endif // LOAD_GFXFF
+//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   return 1;
 }
+#endif // PRINT_CLASS
 
 /***************************************************************************************
 ** Function name:           drawChar
@@ -1491,10 +1777,39 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
   if (font==1)
   {
 #ifdef LOAD_GLCD
-      drawChar(x, y, uniCode, textcolor, textbgcolor, textsize);
-      return 6 * textsize;
+  #ifndef LOAD_GFXFF
+    drawChar(x, y, uniCode, textcolor, textbgcolor, textsize);
+    return 6 * textsize;
+  #endif
 #else
-      return 0;
+  #ifndef LOAD_GFXFF
+    return 0;
+  #endif
+#endif
+
+#ifdef LOAD_GFXFF
+      drawChar(x, y, uniCode, textcolor, textbgcolor, textsize);
+      if(!gfxFont) { // 'Classic' built-in font
+  #ifdef LOAD_GLCD
+        return 6 * textsize;
+  #else
+        return 0;
+  #endif
+      }
+      else
+      {
+        uint8_t first = pgm_read_byte(&gfxFont->first);
+        if((uniCode >= first) && (uniCode <= (uint8_t)pgm_read_byte(&gfxFont->last)))
+        {
+          uint8_t   c2    = uniCode - pgm_read_byte(&gfxFont->first);
+          GFXglyph *glyph = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[c2]);
+          return pgm_read_byte(&glyph->xAdvance) * textsize;
+        }
+        else
+        {
+          return 0;
+        }
+      }
 #endif
   }
 
@@ -1709,83 +2024,132 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
 int TFT_HX8357::drawString(char *string, int poX, int poY, int font)
 {
   int16_t sumX = 0;
-  uint8_t padding = 1;
+  uint8_t padding = 1, baseline = 0;
+  unsigned int cwidth = 0;
   unsigned int cheight = 0;
+
+#ifdef LOAD_GFXFF
+  if (font == 1) {
+    if(gfxFont) {
+      cheight = glyph_ab * textsize;
+      poY += cheight; // Adjust for baseline datum of free fonts
+      baseline = cheight;
+      padding =101; // Different padding method used for Free Fonts
+
+      // We need to make an adjustment for the botom of the string (eg 'y' character)
+      if ((textdatum == BL_DATUM) || (textdatum == BC_DATUM) || (textdatum == BR_DATUM)) {
+        cheight += glyph_bb * textsize;
+      }
+    }
+  }
+#endif
 
   if (textdatum || padX)
   {
     // Find the pixel width of the string in the font
-    unsigned int cwidth  = textWidth(string, font);
+    cwidth  = textWidth(string, font);
 
-    // Get the pixel height of the font
-    cheight = pgm_read_byte( &fontdata[font].height ) * textsize;
+    // If it is not font 1 (GLCD or free font) get the basline and pixel height of the font
+    if (font!=1) {
+      baseline = pgm_read_byte( &fontdata[font].baseline ) * textsize;
+      cheight = fontHeight(font);
+    }
 
     switch(textdatum) {
       case TC_DATUM:
         poX -= cwidth/2;
-        padding = 2;
+        padding += 1;
         break;
       case TR_DATUM:
         poX -= cwidth;
-        padding = 3;
+        padding += 2;
         break;
       case ML_DATUM:
         poY -= cheight/2;
-        padding = 1;
+        //padding += 0;
         break;
       case MC_DATUM:
         poX -= cwidth/2;
         poY -= cheight/2;
-        padding = 2;
+        padding += 1;
         break;
       case MR_DATUM:
         poX -= cwidth;
         poY -= cheight/2;
-        padding = 3;
+        padding += 2;
         break;
       case BL_DATUM:
         poY -= cheight;
-        padding = 1;
+        //padding += 0;
         break;
       case BC_DATUM:
         poX -= cwidth/2;
         poY -= cheight;
-        padding = 2;
+        padding += 1;
         break;
       case BR_DATUM:
         poX -= cwidth;
         poY -= cheight;
-        padding = 3;
+        padding += 2;
+        break;
+      case L_BASELINE:
+        poY -= baseline;
+        //padding += 0;
+        break;
+      case C_BASELINE:
+        poX -= cwidth/2;
+        poY -= baseline;
+        //padding += 1;
+        break;
+      case R_BASELINE:
+        poX -= cwidth;
+        poY -= baseline;
+        padding += 2;
         break;
     }
     // Check coordinates are OK, adjust if not
     if (poX < 0) poX = 0;
     if (poX+cwidth>_width)   poX = _width - cwidth;
     if (poY < 0) poY = 0;
-    if (poY+cheight>_height) poY = _height - cheight;
+    if (poY+cheight-baseline>_height) poY = _height - cheight;
   }
+
+#ifdef LOAD_GFXFF
+  if ((font == 1) && (gfxFont) && (textcolor!=textbgcolor))
+    {
+      cheight = (glyph_ab + glyph_bb) * textsize;
+      fillRect(poX, poY - glyph_ab * textsize, cwidth, cheight, textbgcolor);
+      padding -=100;
+    }
+#endif
 
   while (*string) sumX += drawChar(*(string++), poX+sumX, poY, font);
 
 //#define PADDING_DEBUG
 
 #ifndef PADDING_DEBUG
-  if((padX>sumX) && (textcolor!=textbgcolor))
+  if((padX>cwidth) && (textcolor!=textbgcolor))
   {
-    int padXc = poX+sumX; // Maximum left side padding
+    int padXc = poX+cwidth;
+#ifdef LOAD_GFXFF
+    if ((font == 1) && (gfxFont))
+    {
+      poY -= glyph_ab * textsize;
+    }
+#endif
     switch(padding) {
       case 1:
-        fillRect(padXc,poY,padX-sumX,cheight, textbgcolor);
+        fillRect(padXc,poY,padX-cwidth,cheight, textbgcolor);
         break;
       case 2:
-        fillRect(padXc,poY,(padX-sumX)>>1,cheight, textbgcolor);
-        padXc = (padX-sumX)>>1;
+        fillRect(padXc,poY,(padX-cwidth)>>1,cheight, textbgcolor);
+        padXc = (padX-cwidth)>>1;
         if (padXc>poX) padXc = poX;
-        fillRect(poX - padXc,poY,(padX-sumX)>>1,cheight, textbgcolor);
+        fillRect(poX - padXc,poY,(padX-cwidth)>>1,cheight, textbgcolor);
         break;
       case 3:
         if (padXc>padX) padXc = padX;
-        fillRect(poX + sumX - padXc,poY,padXc-sumX,cheight, textbgcolor);
+        fillRect(poX + cwidth - padXc,poY,padXc-cwidth,cheight, textbgcolor);
         break;
     }
   }
@@ -1793,9 +2157,13 @@ int TFT_HX8357::drawString(char *string, int poX, int poY, int font)
 
   // This is debug code to show text (green box) and blanked (white box) areas
   // to show that the padding areas are being correctly sized and positioned
+// ######## sumX >cwidth ?
   if((padX>sumX) && (textcolor!=textbgcolor))
   {
     int padXc = poX+sumX; // Maximum left side padding
+#ifdef LOAD_GFXFF
+    if ((font == 1) && (gfxFont)) poY -= glyph_ab;
+#endif
     drawRect(poX,poY,sumX,cheight, TFT_GREEN);
     switch(padding) {
       case 1:
@@ -1926,11 +2294,51 @@ int TFT_HX8357::drawFloat(float floatNumber, int dp, int poX, int poY, int font)
   return drawString(str, poX, poY, font);
 }
 
+/***************************************************************************************
+** Function name:           setFreeFont
+** Descriptions:            Sets the GFX free font to use
+***************************************************************************************/
 
+#ifdef LOAD_GFXFF
+
+void TFT_HX8357::setFreeFont(const GFXfont *f) {
+  //textdatum = L_BASELINE;
+  textfont = 1;
+  gfxFont = (GFXfont *)f;
+
+  // Save above baseline (for say H)  and below baseline (for y tail) heights 
+  unsigned int uniCode = FF_HEIGHT - pgm_read_byte(&gfxFont->first);
+  GFXglyph *glyph1  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
+  glyph_ab = -pgm_read_byte(&glyph1->yOffset);
+
+  uniCode = FF_BOTTOM - pgm_read_byte(&gfxFont->first);
+  GFXglyph *glyph2  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
+  glyph_bb = pgm_read_byte(&glyph2->height) + (int8_t)pgm_read_byte(&glyph2->yOffset);
+}
+
+#else
+
+// Alternative to setTextFont() so we don't need two different named functions
+void TFT_HX8357::setFreeFont(uint8_t font) {
+  setTextFont(font);
+}
+
+#endif
+
+// No getTextBounds() as we will only use the GFX fonts for static screen information
+
+
+//   ORIGINAL LIBRARY HEADER
+/*
+  This library has been derived from the Adafruit_GFX
+  library and the associated driver library. See text
+  at the end of this file.
+
+  This library is NOT maintained by Adafruit,
+  please do not contact them for support!
+
+*/
 /***************************************************
-
-  ORIGINAL LIBRARY HEADER
-
   This is our library for the Adafruit  HX8357 Breakout and Shield
   ----> http://www.adafruit.com/products/1651
 
@@ -1945,3 +2353,36 @@ int TFT_HX8357::drawFloat(float floatNumber, int dp, int poX, int poY, int font)
   MIT license, all text above must be included in any redistribution
 
  ****************************************************/
+
+/*
+This is the core graphics library for all our displays, providing a common
+set of graphics primitives (points, lines, circles, etc.).  It needs to be
+paired with a hardware-specific library for each display device we carry
+(to handle the lower-level functions).
+
+Adafruit invests time and resources providing this open source code, please
+support Adafruit & open-source hardware by purchasing products from Adafruit!
+
+Copyright (c) 2013 Adafruit Industries.  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+- Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+- Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+*/

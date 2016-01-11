@@ -1,35 +1,36 @@
 /* Modified by Bodmer to be an example for TFT_HX8357 library.
- *  
- * Original header follows:
+   This sketch uses the GLCD font only.
+
+   The performance for each test is reported to the serial
+   port at 38400 baud.
+
+   This test occupies half of the display to permit performance
+   comparisons with 320 x 240 driplay and driver libraries.
+
+   The screen is temporarily forced to be smaller than 480 x 320
+   this means there will be some plotting artifacts and residual
+   graphics in other areas of the screen, these should be ignored
+   amd do not impact on the test results sent to the serial port.
+
+   Make sure all the required font is loaded by editting the
+   User_Setup.h file in the TFT_HX8357 library folder.
+
+   Original header is at the end of the sketch, some text in it is
+   not applicable to the HX8357 display supported by this example.
 */
-
-/***************************************************
-  This is our GFX example for the Adafruit ILI9341 Breakout and Shield
-  ----> http://www.adafruit.com/products/1651
-
-  Check out the links above for our tutorials and wiring diagrams
-  These displays use SPI to communicate, 4 or 5 pins are required to
-  interface (RST is optional)
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit and open-source hardware by purchasing
-  products from Adafruit!
-
-  Written by Limor Fried/Ladyada for Adafruit Industries.
-  MIT license, all text above must be included in any redistribution
- ****************************************************/
 
 
 #include <TFT_HX8357.h> // Hardware-specific library
 
 // Invoke custom library with different Width and Height for performance comparison ONLY
-// Note width and height will change to values stored in User_Setup.h if setRotation() is called
+// Note width and height will change to values stored in User_Setup.h when setRotation() is called
 TFT_HX8357 tft = TFT_HX8357(240,320);
 
 // Normally use this line without parameters:
 // TFT_HX8357 tft = TFT_HX8357();
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(38400);
   Serial.println("HX8357 Test!"); 
  
   tft.begin();
@@ -85,6 +86,7 @@ void setup() {
 
   Serial.println(F("Done!"));
 
+  tft.fillScreen(TFT_BLACK);
 }
 
 
@@ -337,3 +339,19 @@ unsigned long testFilledRoundRects() {
 
   return micros() - start;
 }
+
+/***************************************************
+  This is our GFX example for the Adafruit ILI9341 Breakout and Shield
+  ----> http://www.adafruit.com/products/1651
+
+  Check out the links above for our tutorials and wiring diagrams
+  These displays use SPI to communicate, 4 or 5 pins are required to
+  interface (RST is optional)
+  Adafruit invests time and resources providing this open source code,
+  please support Adafruit and open-source hardware by purchasing
+  products from Adafruit!
+
+  Written by Limor Fried/Ladyada for Adafruit Industries.
+  MIT license, all text above must be included in any redistribution
+ ****************************************************/
+

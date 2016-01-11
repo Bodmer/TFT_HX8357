@@ -1,8 +1,11 @@
 /*
 
  Example sketch for TFT_HX9357 library.
+
+ No fonts are needed.
  
  Draws a 3d rotating cube on the TFT screen.
+ 
  Original code was found at http://forum.freetronics.com/viewtopic.php?f=37&t=5495
  
  */
@@ -97,9 +100,10 @@ void loop() {
   SetVars(); //sets up the global vars to do the 3D conversion.
 
   // Zoom in and out on Z axis within limits
+  // the cube intersects with the screen for values < 160
   Zoff += inc; 
-  if (Zoff > 450) inc = -1;
-  else if (Zoff < 155) inc = 1;
+  if (Zoff > 500) inc = -1;     // Switch to zoom in
+  else if (Zoff < 160) inc = 1; // Switch to zoom out
 
   for (int i = 0; i < LinestoRender ; i++)
   {
@@ -108,7 +112,7 @@ void loop() {
   }
   RenderImage(); // go draw it!
 
-  delay(10); // Delay to reduce loop rate (reduces flicker due to aliasing with TFT refresh rate)
+  delay(10); // Delay to reduce loop rate (reduces flicker caused by aliasing with TFT screen refresh rate)
 }
 
 /***********************************************************************************************************************************/

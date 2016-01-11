@@ -1,6 +1,9 @@
 /*
  Example animated analogue meters using a HX8357 TFT LCD screen
 
+ Originanally written for a 320 x 240 display, so only occupies half
+ of a 480 x 320 display.
+
  Needs Font 2 (also Font 4 if using large centered scale label)
 
  */

@@ -1,9 +1,8 @@
 /*
- An example showing rainbow colours on a 3.2" TFT LCD screen
+ An example showing rainbow colours on a 3.0 or 3.2" TFT LCD screen
  and to show basic examples of font use.
 
- This sketch uses the GLCD, 2, 4, 6 fonts only. Disable other fonts
- to make the sketch fit in an UNO!
+ This sketch uses the GLCD, 2, 4, 6 fonts only.
 
  Make sure all the required fonts are loaded by editting the
  User_Setup.h file in the TFT_HX8357 library folder.
@@ -11,7 +10,7 @@
 
   #########################################################################
   ###### DON'T FORGET TO UPDATE THE User_Setup.h FILE IN THE LIBRARY ######
-  ######       TO SELECT THE FONTS AND PINS YOU USE, SEE ABOVE       ######
+  ######               TO SELECT THE FONTS YOU USE                   ######
   #########################################################################
  */
 
@@ -44,7 +43,7 @@ void loop() {
     // The standard AdaFruit font still works as before
     tft.setTextColor(TFT_BLACK); // Background is not defined so it is transparent
     tft.setCursor (100, 5);
-    tft.setTextFont(0);        // Select font 0 which is the Adafruit font
+    tft.setTextFont(1);        // Select font 1 which is the Adafruit GLCD font
     tft.print("Original Adafruit font!");
 
     // The new larger fonts do not need to use the .setCursor call, coords are embedded
@@ -54,18 +53,18 @@ void loop() {
     tft.drawCentreString("Font size 4", 160, 30, 4); // Draw text centre at position 120, 30 using font 4
     tft.drawCentreString("12.34", 160, 54, 6);       // Draw text centre at position 120, 54 using font 6
     tft.drawCentreString("12.34 is in font 6", 160, 92, 2); // Draw text centre at position 120, 92 using font 2
-    // Note the x position is the top of the font!
+    // Note the x, y position is the top left corner of the first character printed!
 
     // draw a floating point number
     float pi = 3.14159; // Value to print
     int precision = 3;  // Number of digits after decimal point
-    int xpos = 130;      // x position
+    int xpos = 130;     // x position
     int ypos = 110;     // y position
     int font = 2;       // font number 2
     xpos += tft.drawFloat(pi, precision, xpos, ypos, font); // Draw rounded number and return new xpos delta for next print position
     tft.drawString(" is pi", xpos, ypos, font);             // Continue printing from new x position
 
-    tft.setTextSize(1);           // We are using a size multiplier of 1
+    tft.setTextSize(1);           // We are using a text size multiplier of 1
 
     tft.setTextColor(TFT_BLACK);  // Set text colour to black, no background (so transparent)
     tft.setCursor(76, 150, 4);    // Set cursor to x = 76, y = 150 and use font 4
@@ -78,13 +77,14 @@ void loop() {
     tft.setTextFont(4);        // Select font 4 without moving cursor
     tft.setCursor(00, 210);    // Set cursor to x = 90, y = 210 without changing the font
     tft.setTextColor(TFT_WHITE);
-    // By using TFT print we can use all the formatting features like printing HEX
+    
+    // By using the print class we can use all the formatting features like printing HEX
     tft.print(57005, HEX);    // Cursor does no move to next line
     tft.println(48879, HEX);  // print and move cursor to next line
 
     tft.setTextColor(TFT_GREEN, TFT_BLACK); // This time we will use green text on a black background
     tft.setTextFont(2); // Select font 2
-    //Text will wrap to the next line if needed, by luck it breaks the lines at spaces..
+    //Text will wrap to the next line if needed, by luck it breaks the lines at a space..
     tft.println(" Ode to a Small Lump of Green Putty I Found in My Armpit One Midsummer Morning ");
 
     tft.drawCentreString("34.56", 160, 300, 7);       // Draw text centre at position 120, 54 using font 6
