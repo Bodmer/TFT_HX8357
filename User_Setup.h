@@ -1,4 +1,4 @@
-//                            USER DEFINED SETTINGS V3
+//                            USER DEFINED SETTINGS V4
 //              This library supports the Mega and HX8357B/C display drivers only
 //
 //                 Set fonts to be loaded and speed up options below
@@ -22,6 +22,13 @@
 #define HX8357_TFTWIDTH  320
 #define HX8357_TFTHEIGHT 480
 
+// ##################################################################################
+//
+// If rotations show mirrored text then enable this #define
+//
+// ##################################################################################
+
+//#define MIRROR
 
 // ##################################################################################
 //
@@ -68,7 +75,7 @@
 // rendering where size>1. Sketch then must not draw graphics/text outside screen
 // boundary. Code saving for no bounds check (i.e. commented out) is small.
 
-//#define CLIP_CHECK
+#define CLIP_CHECK
 
 
 // Uncomment next #define to run faster by keeping CS low
@@ -121,9 +128,9 @@
 #define BL_DATUM 6 // Bottom left
 #define BC_DATUM 7 // Bottom centre
 #define BR_DATUM 8 // Bottom right
-#define L_BASELINE  9 // Character baseline (Line the 'A' character would sit on)
-#define C_BASELINE 10
-#define R_BASELINE 11
+#define L_BASELINE  9 // Left character baseline (Line the 'A' character would sit on)
+#define C_BASELINE 10 // Centre character baseline
+#define R_BASELINE 11 // Right character baseline
 
 // ##################################################################################
 //

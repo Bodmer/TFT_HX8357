@@ -1601,6 +1601,38 @@ uint16_t TFT_HX8357::color565(uint8_t r, uint8_t g, uint8_t b)
 #define MADCTL_SS  0x02
 #define MADCTL_GS  0x01
 
+#ifdef MIRROR
+
+void TFT_HX8357::setRotation(uint8_t m)
+{
+  writecommand(HX8357_MADCTL);
+  rotation = m % 4;
+  switch (rotation) {
+   case 0: // Portrait
+     writedata(MADCTL_BGR | MADCTL_SS);
+     _width  = HX8357_TFTWIDTH;
+     _height = HX8357_TFTHEIGHT;
+     break;
+   case 1: // Landscape (Portrait + 90)
+     writedata(MADCTL_MV | MADCTL_BGR);
+     _width  = HX8357_TFTHEIGHT;
+     _height = HX8357_TFTWIDTH;
+     break;
+  case 2: // Inverter portrait
+    writedata( MADCTL_BGR | MADCTL_GS);
+     _width  = HX8357_TFTWIDTH;
+     _height = HX8357_TFTHEIGHT;
+    break;
+   case 3: // Inverted landscape
+     writedata(MADCTL_MV | MADCTL_BGR | MADCTL_SS | MADCTL_GS);
+     _width  = HX8357_TFTHEIGHT;
+     _height = HX8357_TFTWIDTH;
+     break;
+  }
+}
+
+#else
+
 void TFT_HX8357::setRotation(uint8_t m)
 {
   writecommand(HX8357_MADCTL);
@@ -1649,6 +1681,7 @@ void TFT_HX8357::setRotation(uint8_t m)
   }
 }
 
+#endif
 /***************************************************************************************
 ** Function name:           invertDisplay
 ** Description:             invert the display colours i = 1 invert, i = 0 normal
