@@ -1477,7 +1477,7 @@ void TFT_HX8357::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color)
 
   PORTC = color;
   PORTA = color>>8;
-  while (h>16) { h-=16;
+  while (h>15) { h-=16;
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
@@ -1528,7 +1528,7 @@ void TFT_HX8357::drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color)
 
   PORTC = color;
   PORTA = color>>8;
-  while (w>16) { w-=16;
+  while (w>15) { w-=16;
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
     WR_STB;WR_STB;WR_STB;WR_STB;
@@ -1560,7 +1560,7 @@ void TFT_HX8357::fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t c
   if (w>15){
     while(h--) {
       x=w;
-      while (x>16) { x-=16;
+      while (x>15) { x-=16;
         WR_STB;WR_STB;WR_STB;WR_STB;
         WR_STB;WR_STB;WR_STB;WR_STB;
         WR_STB;WR_STB;WR_STB;WR_STB;
