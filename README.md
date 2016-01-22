@@ -2,7 +2,7 @@
 
 An Arduino IDE compatible graphics and fonts library for Mega with a drivers for the HX8357B, HX8357C and ILI9481 based TFT displays.
 
-The library contains proportional fonts, different sizes can be enabled/disabled at compile time to optimise the use of FLASH memory.  The library has been tested with the Due.
+The library contains proportional fonts, different sizes can be enabled/disabled at compile time to optimise the use of FLASH memory.  The library has been tested with the Mega.
 
 In addition to the default fonts (1, 2, 4, 6, 7 and 8) the library includes and supports the encoded Free Fonts from the new Adafruit_GFX library.  Unlike the Adafruit_GFX library these faults can be automatically rendered with background and padding to over-write and erase old text, see the examples.
 
