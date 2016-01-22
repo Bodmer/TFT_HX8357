@@ -13,6 +13,8 @@
 #define GREEN2RED 4
 #define RED2GREEN 5
 
+// #include <avr/dtostrf.h> // Only needed for Due
+
 #include <TFT_HX8357.h> // Hardware-specific library
 
 TFT_HX8357 tft = TFT_HX8357();       // Invoke custom library

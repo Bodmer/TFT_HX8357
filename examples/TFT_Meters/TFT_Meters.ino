@@ -7,6 +7,7 @@
  Needs Font 2 (also Font 4 if using large centered scale label)
 
  */
+// #include <avr/dtostrf.h> // Only needed by Due
 
 #include <TFT_HX8357.h> // Hardware-specific library
 

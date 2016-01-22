@@ -1,5 +1,5 @@
 /*  
- Test the tft.print() viz embedded write() function
+ Test the tft.print() viz the libraries embedded write() function
 
  This sketch used font 2, 4, 7
  
@@ -54,7 +54,7 @@ void loop() {
 
   // Change to font 2
   tft.setTextFont(2);
-  tft.println("my foonting turlingdromes.");
+  tft.println(F("my foonting turlingdromes.")); // Can store strings in FLASH to save RAM
   tft.println("And hooptiously drangle me");
   tft.println("with crinkly bindlewurdles,");
   // This next line is deliberately made too long for the display width to test

@@ -4,7 +4,7 @@
  Needs Font 2 (also Font 4 if using large scale label)
 
  Make sure all the required fonts are loaded by editting the
- User_Setup.h file in the TFT_ILI9341 library folder.
+ User_Setup.h file in the TFT_HX8357 library folder.
 
   #########################################################################
   ###### DON'T FORGET TO UPDATE THE User_Setup.h FILE IN THE LIBRARY ######
@@ -16,6 +16,8 @@ Updated by Bodmer for variable meter size
 
 // Define meter size as multiplier ot 240 pixels wide 1.0 and 1.3333 work OK
 #define M_SIZE 1.3333
+
+// #include <avr/dtostrf.h> // Only needed by Due
 
 #include <TFT_HX8357.h> // Hardware-specific library
 

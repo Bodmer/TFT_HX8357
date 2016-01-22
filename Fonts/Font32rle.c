@@ -1,4 +1,4 @@
-// Font size 4
+// Font 4
 //
 // This font has been 8 bit Run Length Encoded to save FLASH space
 //

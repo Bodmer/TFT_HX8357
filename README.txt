@@ -1,8 +1,8 @@
 This is a standalone library that contains both graphics functions
-and the TFT HX8357 driver library.
+plus the TFT HX8357B/C and HX8357B/c and ILI9481 drivers.
 
 This library has been derived from the Adafruit_GFX and driver library with
-further code from other authors.
+further code snippets from other contributing authors.
 
 New functions have been added in particular it contains proportional fonts
 in addition to the original Adafruit font.

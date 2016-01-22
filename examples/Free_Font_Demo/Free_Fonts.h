@@ -1,6 +1,7 @@
-// Attach this header file to you sketch to use the Free Fonts
+// Attach this header file to your sketch to use the GFX Free Fonts. You can write
+// sketches without it, but it makes referencing them easier.
 
-// This calls up ALL the fonts but they only get loaded into FLASH if you actually
+// This calls up ALL the fonts but they only get loaded if you actually
 // use them in your sketch.
 //
 // No changes are needed to this header file unless new fonts are added to the
@@ -38,7 +39,7 @@
 //
 //      tft.setFreeFont(NULL); // Set font to GLCD
 
-// Use these when printing or drawing text in GLCD and GFXFF fonts
+// Use these when printing or drawing text in GLCD and high rendering speed fonts
 #define GFXFF 1
 #define GLCD  0
 #define FONT2 2

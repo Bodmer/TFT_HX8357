@@ -26,7 +26,7 @@ TFT_HX8357 tft = TFT_HX8357();       // Invoke custom library
 float sx = 0, sy = 1, mx = 1, my = 0, hx = -1, hy = 0;    // Saved H, M, S x & y multipliers
 float sdeg = 0, mdeg = 0, hdeg = 0;
 uint16_t osx = 120, osy = 120, omx = 120, omy = 120, ohx = 120, ohy = 120; // Saved H, M, S x & y coords
-uint16_t x0 = 0, x1 = 0, y0 = 0, y1 = 0;
+int16_t x0 = 0, x1 = 0, yy0 = 0, yy1 = 0;
 uint32_t targetTime = 0;                    // for next 1 second timeout
 
 uint16_t xpos; // x position for clock face
@@ -59,11 +59,11 @@ void setup(void) {
     sx = cos((i - 90) * 0.0174532925);
     sy = sin((i - 90) * 0.0174532925);
     x0 = sx * 114 + xpos;
-    y0 = sy * 114 + 120;
+    yy0 = sy * 114 + 120;
     x1 = sx * 100 + xpos;
-    y1 = sy * 100 + 120;
+    yy1 = sy * 100 + 120;
 
-    tft.drawLine(x0, y0, x1, y1, TFT_GREEN);
+    tft.drawLine(x0, yy0, x1, yy1, TFT_GREEN);
   }
 
   // Draw 60 dots
@@ -71,13 +71,13 @@ void setup(void) {
     sx = cos((i - 90) * 0.0174532925);
     sy = sin((i - 90) * 0.0174532925);
     x0 = sx * 102 + xpos;
-    y0 = sy * 102 + 120;
+    yy0 = sy * 102 + 120;
     // Draw minute markers
-    tft.drawPixel(x0, y0, TFT_WHITE);
+    tft.drawPixel(x0, yy0, TFT_WHITE);
 
     // Draw main quadrant dots
-    if (i == 0 || i == 180) tft.fillCircle(x0, y0, 2, TFT_WHITE);
-    if (i == 90 || i == 270) tft.fillCircle(x0, y0, 2, TFT_WHITE);
+    if (i == 0 || i == 180) tft.fillCircle(x0, yy0, 2, TFT_WHITE);
+    if (i == 90 || i == 270) tft.fillCircle(x0, yy0, 2, TFT_WHITE);
   }
 
   tft.fillCircle(xpos, 121, 3, TFT_WHITE);

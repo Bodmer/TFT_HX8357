@@ -112,6 +112,7 @@ unsigned long testText() {
   tft.fillScreen(TFT_BLACK);
   unsigned long start = micros();
   tft.setCursor(0, 0);
+  tft.setTextFont(1);
   tft.setTextColor(TFT_WHITE);  tft.setTextSize(1);
   tft.println("Hello World!");
   tft.setTextColor(TFT_YELLOW); tft.setTextSize(2);

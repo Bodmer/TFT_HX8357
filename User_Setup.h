@@ -1,4 +1,4 @@
-//                            USER DEFINED SETTINGS V4
+//                            USER DEFINED SETTINGS V5
 //              This library supports the Mega and HX8357B/C display drivers only
 //
 //                 Set fonts to be loaded and speed up options below
@@ -6,12 +6,13 @@
 
 // ##################################################################################
 //
-// Define the driver as HX8357B or HX8357C
+// Define ONE driver, either HX8357B, HX8357C or ILI9481
 //
 // ##################################################################################
 
 #define HX8357B
 //#define HX8357C
+//#define ILI9481
 
 // ##################################################################################
 //
@@ -21,14 +22,6 @@
 
 #define HX8357_TFTWIDTH  320
 #define HX8357_TFTHEIGHT 480
-
-// ##################################################################################
-//
-// If rotations show mirrored text then enable this #define
-//
-// ##################################################################################
-
-//#define MIRROR
 
 // ##################################################################################
 //
@@ -59,13 +52,13 @@
 //
 // ##################################################################################
 
-#define FF_HEIGHT '['  // '[' character used to set free font height above the baseline
+#define FF_HEIGHT '/'  // '/' character used to set free font height above the baseline
 #define FF_BOTTOM 'y'  // 'y' character used to set free font height below baseline
 
 
 // ##################################################################################
 //
-// Speed up options
+// Speed up options (hardly worth changing when using a Due!)
 //
 // ##################################################################################
 
@@ -78,33 +71,18 @@
 #define CLIP_CHECK
 
 
+// Render fonts slightly faster, only enable if you DO NOT use setTextSize(n)
+// with values of 'n' greater than 1, when enabled the code that alows the
+// text size to be multiplied is not included.
+
+//#define FIXED_SIZE 
+
+
 // Uncomment next #define to run faster by keeping CS low
 // This only speeds things up a little (0 - 2%)
-// We can do this as the CS line is not shared with other functions
+// We can do this safely as the CS line is not shared with other functions
 
-//#define KEEP_CS_LOW
-
-
-// Uncomment next #define for faster RS line toggling
-// ** MUST** comment this out unless Mega Pin 4 is connected with a wire link to pin 38
-// so the all controls CS, RS and WR are on PORTG. Then we can define all control
-// line states with a single port write.
-// Performance gain is small for functions that write large filled pixel blocks
-// performance gain is ~16% for drawLines() and drawPixel() functions.
-
-//#define FAST_RS
-
-
-// ##################################################################################
-//
-// Other options
-//
-// ##################################################################################
-
-// Comment out if you do not use the print class, eg. do not use tft.print() or
-// tft.println() in your sketches, this then saves ~400 bytes of FLASH
-
-#define PRINT_CLASS
+#define KEEP_CS_LOW
 
 
 // ##################################################################################
@@ -113,7 +91,7 @@
 //
 // ##################################################################################
 
-//These enumerate the text plotting alignment (reference datum point)
+// These enumerate the text plotting alignment (reference datum point)
 // use in the setTextDatum() function
 
 #define TL_DATUM 0 // Top left (default)

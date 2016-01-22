@@ -1,6 +1,6 @@
 /*
  Font draw speed and flicker test, draws all numbers 0-999 in each font
- Average time in milliseconds to draw is shown in red
+ Average time in milliseconds to draw each character is shown in red
  
  A total of 2890 characters are drawn in each font then the time per
  character printed on screen

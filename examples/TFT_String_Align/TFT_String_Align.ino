@@ -14,6 +14,13 @@ BL_DATUM = 6 = Bottom left
 BC_DATUM = 7 = Bottom centre
 BR_DATUM = 8 = Bottom right
 
+L_BASELINE =  9 = Left character baseline (Line the 'A' character would sit on)
+C_BASELINE = 10 = Centre character baseline
+R_BASELINE = 11 = Right character baseline
+
+So you can use lines to position text like:
+
+  tft.setTextDatum(BC_DATUM); // Set datum to bottom centre
  
  Needs fonts 2, 4, 6, 7 and 8
 
@@ -100,7 +107,9 @@ void loop() {
   tft.setTextColor(TFT_WHITE, TFT_BLUE);
 
   //Test floating point drawing function
-  tft.setTextDatum(BC_DATUM); // Set datum to top centre
+
+  tft.setTextDatum(BC_DATUM); // Set datum to bottom centre
+
   float test = 67.125;
   y = 180;
   tft.drawFloat(test, 4, x, y, 4);

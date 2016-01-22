@@ -1,3 +1,5 @@
+// Adopted by Bodmer to support TFT_HX8357_Due library.
+
 // Font structures for newer Adafruit_GFX (1.1 and later).
 // Example fonts are included in 'Fonts' directory.
 // To use a font in your Arduino sketch, #include the corresponding .h

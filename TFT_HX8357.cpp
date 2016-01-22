@@ -63,6 +63,7 @@ TFT_HX8357::TFT_HX8357(int16_t w, int16_t h)
   pinMode(_rs, OUTPUT);
   pinMode(_cs, OUTPUT);
   pinMode(_wr, OUTPUT);
+
   digitalWrite(_rs, HIGH);
 
 #ifndef KEEP_CS_LOW
@@ -117,7 +118,7 @@ TFT_HX8357::TFT_HX8357(int16_t w, int16_t h)
 #endif
 
 #ifdef LOAD_GFXFF
-  gfxFont   = NULL;
+  gfxFont   = NULL; // Set the font to the GLCD
 #endif
 }
 
@@ -166,7 +167,7 @@ void TFT_HX8357::init(void)
 {
   // toggle RST low to reset
     digitalWrite(_rst, HIGH);
-    delay(10);
+    delay(50);
     digitalWrite(_rst, LOW);
     delay(10);
     digitalWrite(_rst, HIGH);
@@ -364,8 +365,8 @@ void TFT_HX8357::drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color)
 
   drawPixel(x0  , y0 + r, color);
   drawPixel(x0  , y0 - r, color);
-  drawPixel(x0 + r, y0  , color);
-  drawPixel(x0 - r, y0  , color);
+  drawPixel(x0 + r, y0, color);
+  drawPixel(x0 - r, y0, color);
 
   while (x < r) {
     if (f >= 0) {
@@ -736,21 +737,13 @@ void TFT_HX8357::setTextFont(uint8_t f)
 #endif
 }
 
-#ifdef LOAD_GFXFF
-//void TFT_HX8357::setTextFont(const GFXfont *f)
-//{
-//  setFreeFont(f);
-//}
-#endif
-
 /***************************************************************************************
 ** Function name:           setTextColor
 ** Description:             Set the font foreground colour (background is transparent)
 ***************************************************************************************/
 void TFT_HX8357::setTextColor(uint16_t c)
 {
-  // For 'transparent' background, we'll set the bg
-  // to the same as fg instead of using a flag
+  // For 'transparent' background set the bg the same as fg
   textcolor = textbgcolor = c;
 }
 
@@ -826,12 +819,12 @@ int16_t TFT_HX8357::height(void)
 int16_t TFT_HX8357::textWidth(char *string, int font)
 {
   int16_t str_width  = 0;
-  char uniCode;
-  char *widthtable;
+  uint8_t uniCode;
+  uint8_t *widthtable;
 
   if (font>1 && font<9)
   {
-  widthtable = (char *)pgm_read_word( &(fontdata[font].widthtbl ) ) - 32; //subtract the 32 outside the loop
+  widthtable = (uint8_t *)pgm_read_word( &(fontdata[font].widthtbl ) ) - 32; //subtract the 32 outside the loop
 
     while (*string)
     {
@@ -884,7 +877,7 @@ uint16_t TFT_HX8357::fontsLoaded(void)
 ** Function name:           fontHeight
 ** Description:             return the height of a font (yAdvance for free fonts)
 ***************************************************************************************/
-int16_t TFT_HX8357::fontHeight(int font)
+int16_t TFT_HX8357::fontHeight(int16_t font)
 {
 #ifdef LOAD_GFXFF
   if (font==1)
@@ -902,7 +895,7 @@ int16_t TFT_HX8357::fontHeight(int font)
 ** Function name:           drawChar
 ** Description:             draw a single character in the Adafruit GLCD or GFX font
 ***************************************************************************************/
-void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size)
+void TFT_HX8357::drawChar(int16_t x, int16_t y, uint8_t c, uint16_t color, uint16_t bg, uint8_t size)
 {
   if ((x >= _width)            || // Clip right
       (y >= _height)           || // Clip bottom
@@ -924,7 +917,7 @@ void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
     setAddrWindow(x, y, x+5, y+8);
 
     byte column[5];
-    char *flash_address = (char *)font + c * 5;
+    uint8_t *flash_address = (uint8_t *)font + c * 5;
     column[0] = pgm_read_byte(flash_address++);
     column[1] = pgm_read_byte(flash_address++);
     column[2] = pgm_read_byte(flash_address++);
@@ -953,7 +946,7 @@ void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
   }
   else
   {
-    char *flash_address = (char *)font + c * 5; 
+    uint8_t *flash_address = (uint8_t *)font + c * 5; 
     for (int8_t i = 0; i < 6; i++ ) {
       uint8_t line;
       if (i == 5)
@@ -1027,23 +1020,23 @@ void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
     // displays supporting setAddrWindow() and pushColors()), but haven't
     // implemented this yet.
 
-// Here we have 3 versions of the same function
-// Comment out these two #defines to revert to original
+// Here we have 3 versions of the same function just for evaluation purposes
+// Comment out the next two #defines to revert to the slower Adafruit implementation
 
 // If FAST_LINE is defined then the free fonts are rendered using horizontal lines
 // this makes rendering fonts 2-5 times faster. Particularly good for large fonts.
 // This is an elegant solution since it still uses generic functions present in the
 // stock library.
 
-// The test case for the performance test here is to print "Hello world" (lower case w)
+// If FAST_SHIFT is defined then a slightly faster (at least for AVR processors)
+// shifting bit mask is used
 
-// If FAST_SHIFT is defined then a slightly faster (for AVR) shifting bit mask is used
-// Performance gaing is small but worthwhile 2%.
+// Free fonts don't look good when the size multiplier is >1 so we couls remove
+// code if this is not wanted and speed things up
 
-// Free fonts don't look good when the size multiplier is >1 so we can remove code if this is not wanted
 #define FAST_HLINE
 #define FAST_SHIFT
-//#define FIXED_SIZE // Only works with FAST_LINE enabled
+//FIXED_SIZE is an option in User_Setup.h that only works with FAST_LINE enabled
 
 #ifdef FIXED_SIZE
     x+=xo; // Save 88 bytes of FLASH
@@ -1129,15 +1122,13 @@ void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
     }
 #endif
 #endif
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 #ifdef LOAD_GLCD
-#ifdef LOAD_GFXFF
+  #ifdef LOAD_GFXFF
   } // End classic vs custom font
+  #endif
 #endif
-#endif
-//>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 }
 
@@ -1145,11 +1136,12 @@ void TFT_HX8357::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color,
 ** Function name:           setWindow
 ** Description:             define an area to receive a stream of pixels
 ***************************************************************************************/
-// Chip select is high at the end of this function
+// Function to set the address window, for use in sketches
 
 void TFT_HX8357::setWindow(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 {
   setAddrWindow(x0, y0, x1, y1);
+
 #ifndef KEEP_CS_LOW
   CS_H;
 #endif
@@ -1159,7 +1151,7 @@ void TFT_HX8357::setWindow(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 ** Function name:           setAddrWindow
 ** Description:             define an area to rexeive a stream of pixels
 ***************************************************************************************/
-// Chip select stays low, use setWindow() from sketches
+// This is a private function, use setWindow() in sketches
 #ifdef FAST_RS
 
 void TFT_HX8357::setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
@@ -1342,7 +1334,6 @@ void TFT_HX8357::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16
   }
 
   int16_t dx = x1 - x0, dy = abs(y1 - y0);;
-
 
   int16_t err = dx>>1, ystep=-1, xs=x0, dlen=0;
   if (y0 < y1) ystep = 1;
@@ -1693,15 +1684,24 @@ void TFT_HX8357::invertDisplay(boolean i)
 
 /***************************************************************************************
 ** Function name:           write
-** Description:             draw characters piped through serial stream
+** Description:             draw characters piped through print class
 ***************************************************************************************/
-#ifdef PRINT_CLASS 
-size_t TFT_HX8357::write(uint8_t uniCode)
+//#ifdef PRINT_CLASS 
+size_t TFT_HX8357::write(uint8_t utf8)
 {
-  if (uniCode == '\r') return 1;
-  unsigned int width = 0;
-  unsigned int height = 0;
-  //Serial.print((char) uniCode); // Debug line sends all printed TFT text to serial port
+  if (utf8 == '\r') return 1;
+
+  uint8_t uniCode = utf8;        // Work with a copy
+  if (utf8 == '\n') uniCode+=22; // Make it a valid space character to stop errors
+
+  uint16_t width = 0;
+  uint16_t height = 0;
+
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv DEBUG vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+  //Serial.print((uint8_t) uniCode); // Debug line sends all printed TFT text to serial port
+  //Serial.println(uniCode, HEX); // Debug line sends all printed TFT text to serial port
+  //delay(5);                     // Debug optional wait for serial port to flush through
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEBUG ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 #ifdef LOAD_GFXFF
@@ -1712,12 +1712,12 @@ size_t TFT_HX8357::write(uint8_t uniCode)
 #ifdef LOAD_FONT2
   if (textfont == 2)
   {
-      // This is 20us faster than using the fontdata structure (0.443ms per character instead of 0.465ms)
       width = pgm_read_byte(widtbl_f16 + uniCode-32);
       height = chr_hgt_f16;
       // Font 2 is rendered in whole byte widths so we must allow for this
-      width = (width + 6) / 8;  // Width in whole bytes for font 2, should be + 7 but must allow for font width change
-      width = width * 8;        // Width converted back to pixles
+      width = (width + 6) / 8;  // Width in whole bytes for font 2
+                                // Should be + 7 but must allow for font width change
+      width = width * 8;        // Width converted back to pixels
   }
   #ifdef LOAD_RLE
   else
@@ -1728,8 +1728,8 @@ size_t TFT_HX8357::write(uint8_t uniCode)
 #ifdef LOAD_RLE
   {
       // Uses the fontinfo struct array to avoid lots of 'if' or 'switch' statements
-      // A tad slower than above but this is not significant and is more convenient for the RLE fonts
-      // Yes, this code can be needlessly executed when textfont == 1...
+      // This is more convenient for the RLE fonts
+      // Yes, these lines are needlessly executed when textfont = 1
       width = pgm_read_byte( pgm_read_word( &(fontdata[textfont].widthtbl ) ) + uniCode-32 );
       height= pgm_read_byte( &fontdata[textfont].height );
   }
@@ -1747,7 +1747,7 @@ size_t TFT_HX8357::write(uint8_t uniCode)
 
   height = height * textsize;
 
-  if (uniCode == '\n') {
+  if (utf8 == '\n') {
     cursor_y += height;
     cursor_x  = 0;
   }
@@ -1767,7 +1767,7 @@ size_t TFT_HX8357::write(uint8_t uniCode)
   else
   {
 
-    if(uniCode == '\n') {
+    if(utf8 == '\n') {
       cursor_x  = 0;
       cursor_y += (int16_t)textsize *
                   (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
@@ -1798,13 +1798,14 @@ size_t TFT_HX8357::write(uint8_t uniCode)
 
   return 1;
 }
-#endif // PRINT_CLASS
+//#endif // PRINT_CLASS
 
 /***************************************************************************************
 ** Function name:           drawChar
 ** Description:             draw a unicode onto the screen
 ***************************************************************************************/
-int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
+// To be streamlined at some point
+int16_t TFT_HX8357::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t font)
 {
 
   if (font==1)
@@ -1846,9 +1847,9 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
 #endif
   }
 
-  unsigned int width  = 0;
-  unsigned int height = 0;
-  char *flash_address = 0;
+  uint16_t width  = 0;
+  uint16_t height = 0;
+  const uint8_t *flash_address = 0;
 
   uniCode -= 32;
 
@@ -1856,7 +1857,7 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
   if (font == 2)
   {
       // This is 20us faster than using the fontdata structure
-      flash_address = (char *)pgm_read_word(&chrtbl_f16[uniCode]);
+      flash_address = (uint8_t *)pgm_read_word(&chrtbl_f16[uniCode]);
       width = pgm_read_byte(widtbl_f16 + uniCode);
       height = chr_hgt_f16;
   }
@@ -1868,13 +1869,13 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
 #ifdef LOAD_RLE
   {
       // This is slower than above but is more convenient for the RLE fonts
-      flash_address = (char *)pgm_read_word( pgm_read_word( &(fontdata[font].chartbl ) ) + uniCode*sizeof(void *) );
+      flash_address = (uint8_t *)pgm_read_word( pgm_read_word( &(fontdata[font].chartbl ) ) + uniCode*sizeof(void *) );
       width = pgm_read_byte( pgm_read_word( &(fontdata[font].widthtbl ) ) + uniCode );
       height= pgm_read_byte( &fontdata[font].height );
   }
 #endif
 
-  int w = width;
+  int16_t w = width;
   byte line = 0;
 
   byte tl = textcolor;
@@ -1889,13 +1890,14 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
     if (x + width * textsize >= _width) return width * textsize ;
 
     if (textcolor == textbgcolor || textsize != 1) {
-      int pX      = 0;
-      int pY      = y;
-      for (int i = 0; i < height; i++)
+      int16_t pX      = 0;
+      int16_t pY      = y;
+
+      for (int16_t i = 0; i < height; i++)
       {
         if (textcolor != textbgcolor) fillRect(x, pY, width * textsize, textsize, textbgcolor);
 
-        for (int k = 0; k < w; k++)
+        for (int16_t k = 0; k < w; k++)
         {
           line = pgm_read_byte(flash_address + w * i + k);
           if (line) {
@@ -1929,11 +1931,12 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
     else
       // Faster drawing of characters and background using block write
     {
+      if ((y + height - 1) >= _height) y = _height - height;
       setAddrWindow(x, y, (x + w * 8) - 1, y + height - 1);
 
-      for(int i=0; i<height; i++)
+      for(int16_t i=0; i<height; i++)
       {
-        for (int k = 0;k < w; k++)
+        for (int16_t k = 0;k < w; k++)
         { 
         line = pgm_read_byte(flash_address+w*i+k);
         if(line&0x80) {PORTA = th; PORTC = tl;}
@@ -1970,8 +1973,8 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
     w *= height; // Now w is total number of pixels in the character
     if ((textsize != 1) || (textcolor == textbgcolor)) {
       if (textcolor != textbgcolor) fillRect(x, y, width * textsize, textsize * height, textbgcolor);
-      int px = 0, py = y, tpy = y; // To hold character block start and end column and row values
-      int pc = 0; // Pixel count
+      int16_t px = 0, py = y, tpy = y; // To hold character block start and end column and row values
+      int16_t pc = 0; // Pixel count
       byte np = textsize * textsize; // Number of pixels in a drawn pixel
 
       byte tnp = 0; // Temporary copy of np for while loop
@@ -1993,6 +1996,7 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
             px = x + pc % width; // Keep these px and py calculations outside the loop as they are slow
             py = y + pc / width;
           }
+
           while (line--) { // In this case the while(line--) is faster
             pc++; // This is faster than putting pc+=line before while()
             setAddrWindow(px, py, px + ts, py + ts);
@@ -2054,12 +2058,12 @@ int TFT_HX8357::drawChar(unsigned int uniCode, int x, int y, int font)
 ** Function name:           drawString
 ** Description :            draw string with padding if it is defined
 ***************************************************************************************/
-int TFT_HX8357::drawString(char *string, int poX, int poY, int font)
+int16_t TFT_HX8357::drawString(char *string, int16_t poX, int16_t poY, int16_t font)
 {
   int16_t sumX = 0;
   uint8_t padding = 1, baseline = 0;
-  unsigned int cwidth = 0;
-  unsigned int cheight = 0;
+  uint16_t cwidth = 0;
+  uint16_t cheight = 0;
 
 #ifdef LOAD_GFXFF
   if (font == 1) {
@@ -2158,12 +2162,16 @@ int TFT_HX8357::drawString(char *string, int poX, int poY, int font)
 
   while (*string) sumX += drawChar(*(string++), poX+sumX, poY, font);
 
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv DEBUG vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// Switch on debugging for the padding areas
 //#define PADDING_DEBUG
 
 #ifndef PADDING_DEBUG
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEBUG ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
   if((padX>cwidth) && (textcolor!=textbgcolor))
   {
-    int padXc = poX+cwidth;
+    int16_t padXc = poX+cwidth;
 #ifdef LOAD_GFXFF
     if ((font == 1) && (gfxFont))
     {
@@ -2186,14 +2194,17 @@ int TFT_HX8357::drawString(char *string, int poX, int poY, int font)
         break;
     }
   }
+
+
 #else
 
-  // This is debug code to show text (green box) and blanked (white box) areas
-  // to show that the padding areas are being correctly sized and positioned
-// ######## sumX >cwidth ?
+//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv DEBUG vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// This is debug code to show text (green box) and blanked (white box) areas
+// It shows that the padding areas are being correctly sized and positioned
+
   if((padX>sumX) && (textcolor!=textbgcolor))
   {
-    int padXc = poX+sumX; // Maximum left side padding
+    int16_t padXc = poX+sumX; // Maximum left side padding
 #ifdef LOAD_GFXFF
     if ((font == 1) && (gfxFont)) poY -= glyph_ab;
 #endif
@@ -2215,6 +2226,7 @@ int TFT_HX8357::drawString(char *string, int poX, int poY, int font)
     }
   }
 #endif
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ DEBUG ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 return sumX;
 }
@@ -2223,10 +2235,10 @@ return sumX;
 ** Function name:           drawCentreString
 ** Descriptions:            draw string centred on dX
 ***************************************************************************************/
-int TFT_HX8357::drawCentreString(char *string, int dX, int poY, int font)
+int16_t TFT_HX8357::drawCentreString(char *string, int16_t dX, int16_t poY, int16_t font)
 {
   byte tempdatum = textdatum;
-  int sumX = 0;
+  int16_t sumX = 0;
   textdatum = TC_DATUM;
   sumX = drawString(string, dX, poY, font);
   textdatum = tempdatum;
@@ -2237,10 +2249,10 @@ int TFT_HX8357::drawCentreString(char *string, int dX, int poY, int font)
 ** Function name:           drawRightString
 ** Descriptions:            draw string right justified to dX
 ***************************************************************************************/
-int TFT_HX8357::drawRightString(char *string, int dX, int poY, int font)
+int16_t TFT_HX8357::drawRightString(char *string, int16_t dX, int16_t poY, int16_t font)
 {
   byte tempdatum = textdatum;
-  int sumX = 0;
+  int16_t sumX = 0;
   textdatum = TR_DATUM;
   sumX = drawString(string, dX, poY, font);
   textdatum = tempdatum;
@@ -2251,11 +2263,11 @@ int TFT_HX8357::drawRightString(char *string, int dX, int poY, int font)
 ** Function name:           drawNumber
 ** Description:             draw a long integer
 ***************************************************************************************/
-int TFT_HX8357::drawNumber(long long_num, int poX, int poY, int font)
+int16_t TFT_HX8357::drawNumber(int32_t long_num, int16_t pX, int16_t pY, int16_t font)
 {
   char str[12];
   ltoa(long_num, str, 10);
-  return drawString(str, poX, poY, font);
+  return drawString(str, pX, pY, font);
 }
 
 /***************************************************************************************
@@ -2264,7 +2276,7 @@ int TFT_HX8357::drawNumber(long long_num, int poX, int poY, int font)
 ***************************************************************************************/
 // Adapted to assemble and print a string, this permits alignment relative to a datum
 // looks complicated but much more compact and actually faster than using print class
-int TFT_HX8357::drawFloat(float floatNumber, int dp, int poX, int poY, int font)
+int16_t TFT_HX8357::drawFloat(float floatNumber, int16_t dp, int16_t poX, int16_t poY, int16_t font)
 {
   char str[14];               // Array to contain decimal string
   uint8_t ptr = 0;            // Initialise pointer for array
@@ -2294,7 +2306,7 @@ int TFT_HX8357::drawFloat(float floatNumber, int dp, int poX, int poY, int font)
   // No chance of overflow from here on
 
   // Get integer part
-  unsigned long temp = (unsigned long)floatNumber;
+  uint32_t temp = (uint32_t)floatNumber;
 
   // Put integer part into array
   ltoa(temp, str + ptr, 10);
@@ -2340,7 +2352,7 @@ void TFT_HX8357::setFreeFont(const GFXfont *f) {
   gfxFont = (GFXfont *)f;
 
   // Save above baseline (for say H)  and below baseline (for y tail) heights 
-  unsigned int uniCode = FF_HEIGHT - pgm_read_byte(&gfxFont->first);
+  uint16_t uniCode = FF_HEIGHT - pgm_read_byte(&gfxFont->first);
   GFXglyph *glyph1  = &(((GFXglyph *)pgm_read_word(&gfxFont->glyph))[uniCode]);
   glyph_ab = -pgm_read_byte(&glyph1->yOffset);
 

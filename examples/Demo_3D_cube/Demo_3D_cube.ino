@@ -112,7 +112,7 @@ void loop() {
   }
   RenderImage(); // go draw it!
 
-  delay(10); // Delay to reduce loop rate (reduces flicker caused by aliasing with TFT screen refresh rate)
+  delay(9); // Delay to reduce loop rate (reduces flicker caused by aliasing with TFT screen refresh rate)
 }
 
 /***********************************************************************************************************************************/

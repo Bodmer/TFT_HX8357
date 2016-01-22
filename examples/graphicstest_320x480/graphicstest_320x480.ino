@@ -22,7 +22,7 @@
 TFT_HX8357 tft = TFT_HX8357();
 
 void setup() {
-  Serial.begin(38400);
+  Serial.begin(250000);
   Serial.println("HX8357 Test!");
 
   tft.begin();

@@ -1,4 +1,4 @@
-// Code partly derived from ILI9341_due library example
+// Code partly derived from ILI9341 library example
 
 // Draws the 3 icons across the middle of the screen and pauses.
 // Then draws 300 icons at random locations, clears screen and repeats

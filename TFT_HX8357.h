@@ -1,13 +1,13 @@
 /***************************************************
   Arduino TFT graphics library targetted at the
-  Mega boards and HX8357B/C display drivers.
+  Mega board, HX8357B/C and ILI9481 display drivers.
 
   This library has been derived from the Adafruit_GFX
   library and the associated driver library. See text
   at the end of this file.
 
   This is a standalone library that contains the
-  hardware driver, the graphics funtions and the
+  hardware driver, the graphics functions and the
   proportional fonts.
 
   The larger fonts are Run Length Encoded to reduce
@@ -61,7 +61,7 @@
 
 #include <avr/pgmspace.h>
 #include <Arduino.h>
-//#include <Print.h>
+#include <Print.h>
 
 #include <Fonts/GFXFF/gfxfont.h>
 
@@ -184,14 +184,14 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 #define HX8357B_SETPANELRELATED  0xE9
 
 
-// This is a structure to conveniently hold infomation on the fonts
+// This is a structure to conveniently hold infomation on the default fonts
 // Stores pointer to font character image address table, width table and height
 
 typedef struct {
-	const unsigned char *chartbl;
-	const unsigned char *widthtbl;
-	unsigned       char height;
-	unsigned       char baseline;
+	const uint8_t *chartbl;
+	const uint8_t *widthtbl;
+	uint8_t height;
+	uint8_t baseline;
 	} fontinfo;
 
 // Now fill the structure
@@ -202,7 +202,7 @@ const PROGMEM fontinfo fontdata [] = {
    { 0, 0, 8, 7 },
 
   #ifdef LOAD_FONT2
-   { (const unsigned char *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16},
+   { (const uint8_t *)chrtbl_f16, widtbl_f16, chr_hgt_f16, baseline_f16},
   #else
    { 0, 0, 0, 0 },
   #endif
@@ -211,7 +211,7 @@ const PROGMEM fontinfo fontdata [] = {
    { 0, 0, 0, 0 },
 
   #ifdef LOAD_FONT4
-   { (const unsigned char *)chrtbl_f32, widtbl_f32, chr_hgt_f32, baseline_f32},
+   { (const uint8_t *)chrtbl_f32, widtbl_f32, chr_hgt_f32, baseline_f32},
   #else
    { 0, 0, 0, 0 },
   #endif
@@ -220,19 +220,19 @@ const PROGMEM fontinfo fontdata [] = {
    { 0, 0, 0, 0 },
 
   #ifdef LOAD_FONT6
-   { (const unsigned char *)chrtbl_f64, widtbl_f64, chr_hgt_f64, baseline_f64},
+   { (const uint8_t *)chrtbl_f64, widtbl_f64, chr_hgt_f64, baseline_f64},
   #else
    { 0, 0, 0, 0 },
   #endif
 
   #ifdef LOAD_FONT7
-   { (const unsigned char *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s, baseline_f7s},
+   { (const uint8_t *)chrtbl_f7s, widtbl_f7s, chr_hgt_f7s, baseline_f7s},
   #else
    { 0, 0, 0, 0 },
   #endif
 
   #ifdef LOAD_FONT8
-   { (const unsigned char *)chrtbl_f72, widtbl_f72, chr_hgt_f72, baseline_f72}
+   { (const uint8_t *)chrtbl_f72, widtbl_f72, chr_hgt_f72, baseline_f72}
   #else
    { 0, 0, 0, 0 }
   #endif
@@ -242,9 +242,9 @@ const PROGMEM fontinfo fontdata [] = {
 // Class member functions and variables
 class TFT_HX8357
 
-#ifdef PRINT_CLASS 
+//#ifdef PRINT_CLASS 
  : public Print
-#endif
+//#endif
 
 {
 
@@ -256,7 +256,7 @@ class TFT_HX8357
 
            drawPixel(uint16_t x, uint16_t y, uint16_t color),
 
-           drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t font),
+           drawChar(int16_t x, int16_t y, uint8_t c, uint16_t color, uint16_t bg, uint8_t font),
            setWindow(int16_t x0, int16_t y0, int16_t x1, int16_t y1),
 
            pushColor(uint16_t color),
@@ -298,12 +298,14 @@ class TFT_HX8357
            setTextWrap(boolean wrap),
            setTextDatum(uint8_t datum),
            setTextPadding(uint16_t x_width),
+
 #ifdef LOAD_GFXFF
-           setFreeFont(const GFXfont *f = NULL), //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-           setTextFont(const GFXfont *f = NULL), // Alternative to setFont() function
+           setFreeFont(const GFXfont *f = NULL),
+           setTextFont(const GFXfont *f = NULL),
 #else
-           setFreeFont(uint8_t font), //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+           setFreeFont(uint8_t font),
 #endif
+
            writecommand(uint8_t c),
            writedata(uint8_t d),
            commandList(const uint8_t *addr);
@@ -313,25 +315,25 @@ class TFT_HX8357
   uint16_t fontsLoaded(void),
            color565(uint8_t r, uint8_t g, uint8_t b);
 
-  int16_t  drawChar(unsigned int uniCode, int x, int y, int font),
-           drawNumber(long long_num,int poX, int poY, int font),
-           drawFloat(float floatNumber,int decimal,int poX, int poY, int font),
+  int16_t  drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t font),
+           drawNumber(int32_t long_num,int16_t poX, int16_t poY, int16_t font),
+           drawFloat(float floatNumber,int16_t decimal,int16_t poX, int16_t poY, int16_t font),
 
-           drawString(char *string, int poX, int poY, int font),
-           drawCentreString(char *string, int dX, int poY, int font),
-           drawRightString(char *string, int dX, int poY, int font),
+           drawString(char *string, int16_t poX, int16_t poY, int16_t font),
+           drawCentreString(char *string, int16_t dX, int16_t poY, int16_t font),
+           drawRightString(char *string, int16_t dX, int16_t poY, int16_t font),
 
            height(void),
            width(void),
-           textWidth(char *string, int font),
-           fontHeight(int font);
+           textWidth(char *string, int16_t font),
+           fontHeight(int16_t font);
 
-#ifdef PRINT_CLASS 
-  virtual  size_t write(uint8_t);
-#endif
+//#ifdef PRINT_CLASS 
+  virtual  size_t write(uint8_t c);
+//#endif
 
  private:
-          // Sketches should use setWindow() as this may leave Chip Select low...
+    // Sketches should use setWindow(...) instead of this one
     void  setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 
   uint8_t  tabcolor;
@@ -350,13 +352,13 @@ class TFT_HX8357
            textdatum, // Text reference datum
            rotation;  // Display rotation (0-3)
 
-  int8_t  _cs, _rs, _rst, _wr, _fcs; // Control lines
+  int8_t   _cs, _rs, _rst, _wr, _fcs; // Control lines
 
   boolean  textwrap; // If set, 'wrap' text at right edge of display
 
 #ifdef LOAD_GFXFF
   GFXfont
-    *gfxFont; //<<<<<<<<<<<<<<<<<<<<<<<<<<
+    *gfxFont;
 #endif
 
 };
@@ -379,6 +381,4 @@ class TFT_HX8357
 
   Written by Limor Fried/Ladyada for Adafruit Industries.
   MIT license, all text above must be included in any redistribution
-
-  Updated with new functions by Bodmer 14/4/15
  ****************************************************/

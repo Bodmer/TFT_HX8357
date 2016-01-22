@@ -1,4 +1,4 @@
-// Font size 6 is intended to display numbers and time
+// Font 6 is intended to display numbers and time
 //
 // This font has been 8 bit Run Length Encoded to save FLASH space
 //

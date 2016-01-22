@@ -1,38 +1,46 @@
 /*
-  This example draws fonts copied from the Adafruit_GFX library onto the
+  This example draws fonts (as used by the Adafruit_GFX library) onto the
   screen. These fonts are called the GFX Free Fonts (GFXFF) in this library.
 
   Other True Type fonts could be converted using the utility within the
   "fontconvert" folder inside the library. This converted has also been
   copied from the Adafruit_GFX library.
 
-  Since these fonts are a recent edition Adafruit do not have a tutorial
+  Since these fonts are a recent addition Adafruit do not have a tutorial
   available yet on how to use the utility.   Linux users will no doubt
   figure it out!  In the meantime there are 48 font files to use in sizes
-  from 9 point to 24 point, and n normal, bold, and italic or oblique
+  from 9 point to 24 point, and in normal, bold, and italic or oblique
   styles.
 
   This example sketch uses both the print class and drawString() functions
   to plot text to the screen.
 
   Make sure LOAD_GFXFF is defined in the User_Setup.h file within the
-  HX8357 library folder.
+  TFT_HX8357 library folder.
 
   --------------------------- NOTE ----------------------------------------
   The free font encoding format does not lend itself easily to plotting
-  the background without flicker. For values that changes on screen often
-  it is better to use Fonts 1- 8 which are encoded specifically for rapid
+  the background without flicker. For values that changes on screen it is
+  better to use Fonts 1- 8 which are encoded specifically for rapid
   drawing with background.
   -------------------------------------------------------------------------
+  
   >>>>>>>>>>>>>>>>>>>>>>>>>>> WARNING <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-  If too many fonts are loaded they may occupy more than 64K bytes and the
-  Mega will crash, even though the sketch compiles and uploads correctly.
 
-  This is a limit imposed by the Arduino environment, I think the bootloader
-  cannot call the sketch if the start of the executable part gets pushed
-  over the 64K boundary by the fonts. The fonts occupy the first part of
-  the processors FLASH memory, bigger font sets push the executabe upwards
-  in the FLASH memory.
+  This sketch  is at the limit of how many fonts can be
+  loaded in the Mega's memory.
+
+  As supplied with the default settings the sketch has 11 fonts loaded,
+  i.e. GLCD (Font 1), Font 2, Font 4, Font 6, Font 7, Font 8 and five Free Fonts,
+  even though they are not all used in the sketch.
+  
+  Disable fonts you do not need in User_Setup.h in the library folder.
+ 
+  If too many fonts are loaded they may occupy more than 64K bytes and the
+  Due will crash or corrupted characters will be drawn, even though the
+  sketch compiles and uploads correctly.
+
+  This is a limit imposed by the Arduino environment.
 
   #########################################################################
   ###### DON'T FORGET TO UPDATE THE User_Setup.h FILE IN THE LIBRARY ######
@@ -79,23 +87,23 @@ void loop() {
   tft.println();
   tft.println();
 
-  tft.setFreeFont(FS9);   // Select Free Serif 9 point font, could use:
+  tft.setFreeFont(FSB9);   // Select Free Serif 9 point font, could use:
   // tft.setFreeFont(&FreeSerif9pt7b);
   tft.println();          // Free fonts plot with the baseline (imaginary line the letter A would sit on)
   // as the datum, so we must move the cursor down a line from the 0,0 position
-  tft.print("Serif 9pt");  // Print the font name onto the TFT screen
+  tft.print("Serif Bold 9pt");  // Print the font name onto the TFT screen
 
-  tft.setFreeFont(FS12);  // Select Free Serif 12 point font
-  tft.println();          // Move cursor down a line
-  tft.print("Serif 12pt"); // Print the font name onto the TFT screen
+  tft.setFreeFont(FSB12);       // Select Free Serif 12 point font
+  tft.println();                // Move cursor down a line
+  tft.print("Serif Bold 12pt"); // Print the font name onto the TFT screen
 
-  tft.setFreeFont(FS18);  // Select Free Serif 12 point font
-  tft.println();          // Move cursor down a line
-  tft.print("Serif 18pt"); // Print the font name onto the TFT screen
+  tft.setFreeFont(FSB18);       // Select Free Serif 12 point font
+  tft.println();                // Move cursor down a line
+  tft.print("Serif Bold 18pt"); // Print the font name onto the TFT screen
 
-  tft.setFreeFont(FS24);     // Select Free Serif 24 point font
-  tft.println();             // Move cursor down a line
-  tft.print("Serif 24pt");    // Print the font name onto the TFT screen
+  tft.setFreeFont(FSB24);       // Select Free Serif 24 point font
+  tft.println();                // Move cursor down a line
+  tft.print("Serif Bold 24pt"); // Print the font name onto the TFT screen
 
 
   delay(4000);
@@ -127,11 +135,10 @@ void loop() {
   tft.drawString("Serif Bold 18pt", xpos, ypos, GFXFF);
   ypos += tft.fontHeight(GFXFF);
 
-  tft.setFreeFont(FSBI24);
-  tft.drawString("Serif Bold Italic 24pt", xpos, ypos, GFXFF);
+  tft.setFreeFont(FSB24);
+  tft.drawString("Serif Bold 24pt", xpos, ypos, GFXFF);
   ypos += tft.fontHeight(GFXFF);
 
-  tft.setFreeFont(FMB24); // Free Mono Bold font
   // Set text padding to 120 pixels wide area to over-write old values on screen
   tft.setTextPadding(120);
   for (int i = 0; i <= 20; i++) {
@@ -159,7 +166,7 @@ void loop() {
 
   tft.setFreeFont(FSB9);                              // Select the font
   tft.drawString("Serif Bold 9pt", xpos, ypos, GFXFF);  // Draw the text string in the selected GFX free font
-  ypos += tft.fontHeight(GFXFF);                      // Get the font height and move ypos down
+  ypos += tft.fontHeight(GFXFF);                        // Get the font height and move ypos down
 
   tft.setFreeFont(FSB12);
   tft.drawString("Serif Bold 12pt", xpos, ypos, GFXFF);
@@ -173,7 +180,6 @@ void loop() {
   tft.drawString("Serif Bold Italic 24pt", xpos, ypos, GFXFF);
   ypos += tft.fontHeight(GFXFF);
 
-  tft.setFreeFont(FMB24); // Free Mono Bold font
   // Set text padding to 120 pixels wide area to over-write old values on screen
   tft.setTextPadding(120);
   for (int i = 0; i <= 20; i++) {
@@ -302,9 +308,5 @@ void drawDatum(int x, int y)
 
 #ifndef LOAD_GFXFF
 ERROR_Please_enable_LOAD_GFXFF_in_User_Setup!
-#endif
-
-#ifndef PRINT_CLASS
-ERROR_Please_enable_PRINT_CLASS_in_User_Setup!
 #endif
 

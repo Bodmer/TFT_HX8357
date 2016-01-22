@@ -1,4 +1,4 @@
-// Font size 2
+// Font 2
 
 #include <avr/pgmspace.h>
 
