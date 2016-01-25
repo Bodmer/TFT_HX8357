@@ -1592,7 +1592,7 @@ uint16_t TFT_HX8357::color565(uint8_t r, uint8_t g, uint8_t b)
 #define MADCTL_SS  0x02
 #define MADCTL_GS  0x01
 
-#ifdef MIRROR
+#ifdef ILI9481
 
 void TFT_HX8357::setRotation(uint8_t m)
 {
@@ -1609,11 +1609,11 @@ void TFT_HX8357::setRotation(uint8_t m)
      _width  = HX8357_TFTHEIGHT;
      _height = HX8357_TFTWIDTH;
      break;
-  case 2: // Inverter portrait
-    writedata( MADCTL_BGR | MADCTL_GS);
+   case 2: // Inverter portrait
+     writedata( MADCTL_BGR | MADCTL_GS);
      _width  = HX8357_TFTWIDTH;
      _height = HX8357_TFTHEIGHT;
-    break;
+     break;
    case 3: // Inverted landscape
      writedata(MADCTL_MV | MADCTL_BGR | MADCTL_SS | MADCTL_GS);
      _width  = HX8357_TFTHEIGHT;
@@ -1639,8 +1639,8 @@ void TFT_HX8357::setRotation(uint8_t m)
      _width  = HX8357_TFTHEIGHT;
      _height = HX8357_TFTWIDTH;
      break;
-  case 2: // Inverter portrait
-    writedata( MADCTL_BGR | MADCTL_MY);
+   case 2: // Inverter portrait
+     writedata( MADCTL_BGR | MADCTL_MY);
      _width  = HX8357_TFTWIDTH;
      _height = HX8357_TFTHEIGHT;
     break;
@@ -1659,11 +1659,11 @@ void TFT_HX8357::setRotation(uint8_t m)
      _width  = HX8357_TFTHEIGHT;
      _height = HX8357_TFTWIDTH;
      break;
-  case 6: // Inverter portrait
-    writedata( MADCTL_BGR);
+   case 6: // Inverter portrait
+     writedata( MADCTL_BGR);
      _width  = HX8357_TFTWIDTH;
      _height = HX8357_TFTHEIGHT;
-    break;
+     break;
    case 7: // Inverted landscape
      writedata(MADCTL_BGR | MADCTL_MV | MADCTL_MY);
      _width  = HX8357_TFTHEIGHT;
