@@ -1254,8 +1254,8 @@ void TFT_HX8357::drawPixel(uint16_t x, uint16_t y, uint16_t color)
 void TFT_HX8357::pushColor(uint16_t color)
 {
   CS_L;
-  PORTA    = color;
-  PORTC    = color >> 8;
+  PORTA    = color >> 8;
+  PORTC    = color;
   WR_STB;
   CS_H;
 }
