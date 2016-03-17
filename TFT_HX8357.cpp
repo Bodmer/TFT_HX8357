@@ -473,6 +473,93 @@ void TFT_HX8357::fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cor
 }
 
 /***************************************************************************************
+** Function name:           drawEllipse
+** Description:             Draw a ellipse outline
+***************************************************************************************/
+void TFT_HX8357::drawEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color)
+{
+  if (rx<2) return;
+  if (ry<2) return;
+  int16_t x, y;
+  int32_t rx2 = rx * rx;
+  int32_t ry2 = ry * ry;
+  int32_t fx2 = 4 * rx2;
+  int32_t fy2 = 4 * ry2;
+  int32_t s;
+
+  for (x = 0, y = ry, s = 2*ry2+rx2*(1-2*ry); ry2*x <= rx2*y; x++)
+  {
+    drawPixel(x0 + x, y0 + y, color);
+    drawPixel(x0 - x, y0 + y, color);
+    drawPixel(x0 + x, y0 - y, color);
+    drawPixel(x0 - x, y0 - y, color);
+    if (s >= 0)
+    {
+      s += fx2 * (1 - y);
+      y--;
+    }
+    s += ry2 * ((4 * x) + 6);
+  }
+
+  for (x = rx, y = 0, s = 2*rx2+ry2*(1-2*rx); rx2*y <= ry2*x; y++)
+  {
+    drawPixel(x0 + x, y0 + y, color);
+    drawPixel(x0 - x, y0 + y, color);
+    drawPixel(x0 + x, y0 - y, color);
+    drawPixel(x0 - x, y0 - y, color);
+    if (s >= 0)
+    {
+      s += fy2 * (1 - x);
+      x--;
+    }
+    s += rx2 * ((4 * y) + 6);
+  }
+}
+
+/***************************************************************************************
+** Function name:           fillEllipse
+** Description:             draw a filled ellipse
+***************************************************************************************/
+void TFT_HX8357::fillEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color)
+{
+  if (rx<2) return;
+  if (ry<2) return;
+  int16_t x, y;
+  int32_t rx2 = rx * rx;
+  int32_t ry2 = ry * ry;
+  int32_t fx2 = 4 * rx2;
+  int32_t fy2 = 4 * ry2;
+  int32_t s;
+
+  for (x = 0, y = ry, s = 2*ry2+rx2*(1-2*ry); ry2*x <= rx2*y; x++)
+  {
+    drawFastHLine(x0 - x, y0 - y, x + x + 1, color);
+    drawFastHLine(x0 - x, y0 + y, x + x + 1, color);
+
+    if (s >= 0)
+    {
+      s += fx2 * (1 - y);
+      y--;
+    }
+    s += ry2 * ((4 * x) + 6);
+  }
+
+  for (x = rx, y = 0, s = 2*rx2+ry2*(1-2*rx); rx2*y <= ry2*x; y++)
+  {
+    drawFastHLine(x0 - x, y0 - y, x + x + 1, color);
+    drawFastHLine(x0 - x, y0 + y, x + x + 1, color);
+
+    if (s >= 0)
+    {
+      s += fy2 * (1 - x);
+      x--;
+    }
+    s += rx2 * ((4 * y) + 6);
+  }
+
+}
+
+/***************************************************************************************
 ** Function name:           fillScreen
 ** Description:             Clear the screen to defined colour
 ***************************************************************************************/

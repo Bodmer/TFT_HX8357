@@ -284,6 +284,9 @@ class TFT_HX8357
            fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color),
            fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, int16_t delta, uint16_t color),
 
+           drawEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color),
+           fillEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uint16_t color),
+
            drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color),
            fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color),
 
