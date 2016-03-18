@@ -31,6 +31,9 @@ drawCircleHelper	KEYWORD2
 fillCircle	KEYWORD2
 fillCircleHelper	KEYWORD2
 
+drawEllipse		KEYWORD2
+fillEllipse		KEYWORD2
+
 drawTriangle		KEYWORD2
 fillTriangle		KEYWORD2
 
