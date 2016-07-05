@@ -175,6 +175,84 @@ void TFT_HX8357::init(void)
 
 #ifndef HX8357C
 
+#ifdef ILI9486
+    writecommand(0x01);
+    writedata(0x00);
+    delay(50);
+
+    writecommand(0x28);
+    writedata(0x00);
+
+    writecommand(0xC0);        // Power Control 1
+    writedata(0x0d);
+    writedata(0x0d);
+
+    writecommand(0xC1);        // Power Control 2
+    writedata(0x43);
+    writedata(0x00);
+
+    writecommand(0xC2);        // Power Control 3
+    writedata(0x00);
+
+    writecommand(0xC5);        // VCOM Control
+    writedata(0x00);
+    writedata(0x48);
+
+    writecommand(0xB6);        // Display Function Control
+    writedata(0x00);
+    writedata(0x22);           // 0x42 = Rotate display 180 deg.
+    writedata(0x3B);
+
+    writecommand(0xE0);        // PGAMCTRL (Positive Gamma Control)
+    writedata(0x0f);
+    writedata(0x24);
+    writedata(0x1c);
+    writedata(0x0a);
+    writedata(0x0f);
+    writedata(0x08);
+    writedata(0x43);
+    writedata(0x88);
+    writedata(0x32);
+    writedata(0x0f);
+    writedata(0x10);
+    writedata(0x06);
+    writedata(0x0f);
+    writedata(0x07);
+    writedata(0x00);
+
+    writecommand(0xE1);        // NGAMCTRL (Negative Gamma Control)
+    writedata(0x0F);
+    writedata(0x38);
+    writedata(0x30);
+    writedata(0x09);
+    writedata(0x0f);
+    writedata(0x0f);
+    writedata(0x4e);
+    writedata(0x77);
+    writedata(0x3c);
+    writedata(0x07);
+    writedata(0x10);
+    writedata(0x05);
+    writedata(0x23);
+    writedata(0x1b);
+    writedata(0x00); 
+
+    writecommand(0x20);        // Display Inversion OFF, 0x21 = ON
+
+    writecommand(0x36);        // Memory Access Control
+    writedata(0x0A);
+
+    writecommand(0x3A);        // Interface Pixel Format
+    writedata(0x55); 
+
+    writecommand(0x11);
+
+    delay(150);
+
+    writecommand(0x29);
+    delay(25);
+
+#else
 // Configure HX8357-B display
     writecommand(0x11);
     delay(20);
@@ -239,112 +317,113 @@ void TFT_HX8357::init(void)
 
     delay(25);
 // End of HX8357-B display configuration
+#endif
 
 #else
 
 // HX8357-C display initialisation
 
-	writecommand(0xB9); // Enable extension command
-	writedata(0xFF);
-	writedata(0x83);
-	writedata(0x57);
-	delay(50);
-	
-	writecommand(0xB6); //Set VCOM voltage
-	writedata(0x2C);    //0x52 for HSD 3.0"
-	
-	writecommand(0x11); // Sleep off
-	delay(200);
-	
-	writecommand(0x35); // Tearing effect on
-	writedata(0x00);    // Added parameter
+    writecommand(0xB9); // Enable extension command
+    writedata(0xFF);
+    writedata(0x83);
+    writedata(0x57);
+    delay(50);
+    
+    writecommand(0xB6); //Set VCOM voltage
+    writedata(0x2C);    //0x52 for HSD 3.0"
+    
+    writecommand(0x11); // Sleep off
+    delay(200);
+    
+    writecommand(0x35); // Tearing effect on
+    writedata(0x00);    // Added parameter
 
-	writecommand(0x3A); // Interface pixel format
-	writedata(0x55);    // 16 bits per pixel
+    writecommand(0x3A); // Interface pixel format
+    writedata(0x55);    // 16 bits per pixel
 
-	//writecommand(0xCC); // Set panel characteristic
-	//writedata(0x09);    // S960>S1, G1>G480, R-G-B, normally black
+    //writecommand(0xCC); // Set panel characteristic
+    //writedata(0x09);    // S960>S1, G1>G480, R-G-B, normally black
 
-	//writecommand(0xB3); // RGB interface
-	//writedata(0x43);
-	//writedata(0x00);
-	//writedata(0x06);
-	//writedata(0x06);
+    //writecommand(0xB3); // RGB interface
+    //writedata(0x43);
+    //writedata(0x00);
+    //writedata(0x06);
+    //writedata(0x06);
 
-	writecommand(0xB1); // Power control
-	writedata(0x00);
-	writedata(0x15);
-	writedata(0x0D);
-	writedata(0x0D);
-	writedata(0x83);
-	writedata(0x48);
-	
-	
-	writecommand(0xC0); // Does this do anything?
-	writedata(0x24);
-	writedata(0x24);
-	writedata(0x01);
-	writedata(0x3C);
-	writedata(0xC8);
-	writedata(0x08);
-	
-	writecommand(0xB4); // Display cycle
-	writedata(0x02);
-	writedata(0x40);
-	writedata(0x00);
-	writedata(0x2A);
-	writedata(0x2A);
-	writedata(0x0D);
-	writedata(0x4F);
-	
-	writecommand(0xE0); // Gamma curve
-	writedata(0x00);
-	writedata(0x15);
-	writedata(0x1D);
-	writedata(0x2A);
-	writedata(0x31);
-	writedata(0x42);
-	writedata(0x4C);
-	writedata(0x53);
-	writedata(0x45);
-	writedata(0x40);
-	writedata(0x3B);
-	writedata(0x32);
-	writedata(0x2E);
-	writedata(0x28);
-	
-	writedata(0x24);
-	writedata(0x03);
-	writedata(0x00);
-	writedata(0x15);
-	writedata(0x1D);
-	writedata(0x2A);
-	writedata(0x31);
-	writedata(0x42);
-	writedata(0x4C);
-	writedata(0x53);
-	writedata(0x45);
-	writedata(0x40);
-	writedata(0x3B);
-	writedata(0x32);
-	
-	writedata(0x2E);
-	writedata(0x28);
-	writedata(0x24);
-	writedata(0x03);
-	writedata(0x00);
-	writedata(0x01);
+    writecommand(0xB1); // Power control
+    writedata(0x00);
+    writedata(0x15);
+    writedata(0x0D);
+    writedata(0x0D);
+    writedata(0x83);
+    writedata(0x48);
+    
+    
+    writecommand(0xC0); // Does this do anything?
+    writedata(0x24);
+    writedata(0x24);
+    writedata(0x01);
+    writedata(0x3C);
+    writedata(0xC8);
+    writedata(0x08);
+    
+    writecommand(0xB4); // Display cycle
+    writedata(0x02);
+    writedata(0x40);
+    writedata(0x00);
+    writedata(0x2A);
+    writedata(0x2A);
+    writedata(0x0D);
+    writedata(0x4F);
+    
+    writecommand(0xE0); // Gamma curve
+    writedata(0x00);
+    writedata(0x15);
+    writedata(0x1D);
+    writedata(0x2A);
+    writedata(0x31);
+    writedata(0x42);
+    writedata(0x4C);
+    writedata(0x53);
+    writedata(0x45);
+    writedata(0x40);
+    writedata(0x3B);
+    writedata(0x32);
+    writedata(0x2E);
+    writedata(0x28);
+    
+    writedata(0x24);
+    writedata(0x03);
+    writedata(0x00);
+    writedata(0x15);
+    writedata(0x1D);
+    writedata(0x2A);
+    writedata(0x31);
+    writedata(0x42);
+    writedata(0x4C);
+    writedata(0x53);
+    writedata(0x45);
+    writedata(0x40);
+    writedata(0x3B);
+    writedata(0x32);
+    
+    writedata(0x2E);
+    writedata(0x28);
+    writedata(0x24);
+    writedata(0x03);
+    writedata(0x00);
+    writedata(0x01);
 
-	writecommand(0x36); // MADCTL Memory access control
-	writedata(0x48);
-	delay(20);
+    writecommand(0x36); // MADCTL Memory access control
+    writedata(0x48);
+    delay(20);
 
-	writecommand(0x21); //Display inversion on
-	delay(20);
+    writecommand(0x21); //Display inversion on
+    delay(20);
 
-	writecommand(0x29); // Display on
-	
-	delay(120);
+    writecommand(0x29); // Display on
+    
+    delay(120);
 #endif
 
 #ifdef KEEP_CS_LOW
@@ -634,134 +713,134 @@ void TFT_HX8357::drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, in
 // Fill a triangle - uses faster Bressenham method (original Adafruit function overflowed on big triangles!)
 void TFT_HX8357::fillTriangle (int16_t x1,int16_t y1,int16_t x2,int16_t y2,int16_t x3,int16_t y3, uint16_t c)
 {
-	int16_t t1x,t2x,y,minx,maxx,t1xp,t2xp;
-	bool changed1 = false;
-	bool changed2 = false;
-	int16_t signx1,signx2,dx1,dy1,dx2,dy2;
-	uint16_t e1,e2;
+    int16_t t1x,t2x,y,minx,maxx,t1xp,t2xp;
+    bool changed1 = false;
+    bool changed2 = false;
+    int16_t signx1,signx2,dx1,dy1,dx2,dy2;
+    uint16_t e1,e2;
      // Sort vertices
-	if (y1>y2) { swap(y1,y2); swap(x1,x2); }
-	if (y1>y3) { swap(y1,y3); swap(x1,x3); }
-	if (y2>y3) { swap(y2,y3); swap(x2,x3); }
+    if (y1>y2) { swap(y1,y2); swap(x1,x2); }
+    if (y1>y3) { swap(y1,y3); swap(x1,x3); }
+    if (y2>y3) { swap(y2,y3); swap(x2,x3); }
 
-	t1x=t2x=x1; y=y1;   // Starting points
+    t1x=t2x=x1; y=y1;   // Starting points
 
-	dx1 = x2 - x1; if(dx1<0) { dx1=-dx1; signx1=-1; } else signx1=1;
-	dy1 = y2 - y1;
+    dx1 = x2 - x1; if(dx1<0) { dx1=-dx1; signx1=-1; } else signx1=1;
+    dy1 = y2 - y1;
  
-	dx2 = x3 - x1; if(dx2<0) { dx2=-dx2; signx2=-1; } else signx2=1;
-	dy2 = y3 - y1;
-	
-	if (dy1 > dx1) {   // swap values
+    dx2 = x3 - x1; if(dx2<0) { dx2=-dx2; signx2=-1; } else signx2=1;
+    dy2 = y3 - y1;
+    
+    if (dy1 > dx1) {   // swap values
         swap(dx1,dy1);
-		changed1 = true;
-	}
-	if (dy2 > dx2) {   // swap values
+        changed1 = true;
+    }
+    if (dy2 > dx2) {   // swap values
         swap(dy2,dx2);
-		changed2 = true;
-	}
-	
-	e2 = dx2>>1;
+        changed2 = true;
+    }
+    
+    e2 = dx2>>1;
     // Flat top, just process the second half
     if(y1==y2) goto next;
     e1 = dx1>>1;
-	
-	for (uint16_t i = 0; i < dx1;) {
-		t1xp=0; t2xp=0;
-		if(t1x<t2x) { minx=t1x; maxx=t2x; }
-		else		{ minx=t2x; maxx=t1x; }
+    
+    for (uint16_t i = 0; i < dx1;) {
+        t1xp=0; t2xp=0;
+        if(t1x<t2x) { minx=t1x; maxx=t2x; }
+        else        { minx=t2x; maxx=t1x; }
         // process first line until y value is about to change
-		while(i<dx1) {
-			i++;			
-			e1 += dy1;
-	   	   	while (e1 >= dx1) {
-				e1 -= dx1;
-   	   	   	   if (changed1) t1xp=signx1;//t1x += signx1;
-				else          goto next1;
-			}
-			if (changed1) break;
-			else t1x += signx1;
-		}
-	// Move line
-	next1:
+        while(i<dx1) {
+            i++;            
+            e1 += dy1;
+                  while (e1 >= dx1) {
+                e1 -= dx1;
+                        if (changed1) t1xp=signx1;//t1x += signx1;
+                else          goto next1;
+            }
+            if (changed1) break;
+            else t1x += signx1;
+        }
+    // Move line
+    next1:
         // process second line until y value is about to change
-		while (1) {
-			e2 += dy2;		
-			while (e2 >= dx2) {
-				e2 -= dx2;
-				if (changed2) t2xp=signx2;//t2x += signx2;
-				else          goto next2;
-			}
-			if (changed2)     break;
-			else              t2x += signx2;
-		}
-	next2:
-		if(minx>t1x) minx=t1x; if(minx>t2x) minx=t2x;
-		if(maxx<t1x) maxx=t1x; if(maxx<t2x) maxx=t2x;
-	   	drawFastHLine(minx, y, maxx-minx, c);    // Draw line from min to max points found on the y
-		// Now increase y
-		if(!changed1) t1x += signx1;
-		t1x+=t1xp;
-		if(!changed2) t2x += signx2;
-		t2x+=t2xp;
-    	     y += 1;
-		if(y==y2) break;
-		
+        while (1) {
+            e2 += dy2;        
+            while (e2 >= dx2) {
+                e2 -= dx2;
+                if (changed2) t2xp=signx2;//t2x += signx2;
+                else          goto next2;
+            }
+            if (changed2)     break;
+            else              t2x += signx2;
+        }
+    next2:
+        if(minx>t1x) minx=t1x; if(minx>t2x) minx=t2x;
+        if(maxx<t1x) maxx=t1x; if(maxx<t2x) maxx=t2x;
+           drawFastHLine(minx, y, maxx-minx, c);    // Draw line from min to max points found on the y
+        // Now increase y
+        if(!changed1) t1x += signx1;
+        t1x+=t1xp;
+        if(!changed2) t2x += signx2;
+        t2x+=t2xp;
+             y += 1;
+        if(y==y2) break;
+        
    }
-	next:
-	// Second half
-	dx1 = x3 - x2; if(dx1<0) { dx1=-dx1; signx1=-1; } else signx1=1;
-	dy1 = y3 - y2;
-	t1x=x2;
+    next:
+    // Second half
+    dx1 = x3 - x2; if(dx1<0) { dx1=-dx1; signx1=-1; } else signx1=1;
+    dy1 = y3 - y2;
+    t1x=x2;
  
-	if (dy1 > dx1) {   // swap values
+    if (dy1 > dx1) {   // swap values
         swap(dy1,dx1);
-		changed1 = true;
-	} else changed1=false;
-	
-	e1 = dx1>>1;
-	
-	for (uint16_t i = 0; i<=dx1; i++) {
-		t1xp=0; t2xp=0;
-		if(t1x<t2x) { minx=t1x; maxx=t2x; }
-		else		{ minx=t2x; maxx=t1x; }
-	    // process first line until y value is about to change
-		while(i<dx1) {
-    		e1 += dy1;
-	   	   	while (e1 >= dx1) {
-				e1 -= dx1;
-   	   	   	   	if (changed1) { t1xp=signx1; break; }//t1x += signx1;
-				else          goto next3;
-			}
-			if (changed1) break;
-			else   	   	  t1x += signx1;
-			if(i<dx1) i++;
-		}
-	next3:
+        changed1 = true;
+    } else changed1=false;
+    
+    e1 = dx1>>1;
+    
+    for (uint16_t i = 0; i<=dx1; i++) {
+        t1xp=0; t2xp=0;
+        if(t1x<t2x) { minx=t1x; maxx=t2x; }
+        else        { minx=t2x; maxx=t1x; }
+        // process first line until y value is about to change
+        while(i<dx1) {
+            e1 += dy1;
+                  while (e1 >= dx1) {
+                e1 -= dx1;
+                            if (changed1) { t1xp=signx1; break; }//t1x += signx1;
+                else          goto next3;
+            }
+            if (changed1) break;
+            else                t1x += signx1;
+            if(i<dx1) i++;
+        }
+    next3:
         // process second line until y value is about to change
-		while (t2x!=x3) {
-			e2 += dy2;
-	   	   	while (e2 >= dx2) {
-				e2 -= dx2;
-				if(changed2) t2xp=signx2;
-				else          goto next4;
-			}
-			if (changed2)     break;
-			else              t2x += signx2;
-		}	   	   
-	next4:
+        while (t2x!=x3) {
+            e2 += dy2;
+                  while (e2 >= dx2) {
+                e2 -= dx2;
+                if(changed2) t2xp=signx2;
+                else          goto next4;
+            }
+            if (changed2)     break;
+            else              t2x += signx2;
+        }              
+    next4:
 
-		if(minx>t1x) minx=t1x; if(minx>t2x) minx=t2x;
-		if(maxx<t1x) maxx=t1x; if(maxx<t2x) maxx=t2x;
-	   	drawFastHLine(minx, y, maxx-minx, c);    // Draw line from min to max points found on the y
-		// Now increase y
-		if(!changed1) t1x += signx1;
-		t1x+=t1xp;
-		if(!changed2) t2x += signx2;
-		t2x+=t2xp;
-       	y += 1;
-		if(y>y3) return;
-	}
+        if(minx>t1x) minx=t1x; if(minx>t2x) minx=t2x;
+        if(maxx<t1x) maxx=t1x; if(maxx<t2x) maxx=t2x;
+           drawFastHLine(minx, y, maxx-minx, c);    // Draw line from min to max points found on the y
+        // Now increase y
+        if(!changed1) t1x += signx1;
+        t1x+=t1xp;
+        if(!changed2) t2x += signx2;
+        t2x+=t2xp;
+           y += 1;
+        if(y>y3) return;
+    }
 }
 
 /***************************************************************************************
@@ -1687,22 +1766,38 @@ void TFT_HX8357::setRotation(uint8_t m)
   rotation = m % 4;
   switch (rotation) {
    case 0: // Portrait
+#ifdef ILI9486
+     writedata (0x08);
+#else
      writedata(MADCTL_BGR | MADCTL_SS);
+#endif
      _width  = HX8357_TFTWIDTH;
      _height = HX8357_TFTHEIGHT;
      break;
    case 1: // Landscape (Portrait + 90)
+#ifdef ILI9486
+     writedata (0x68);
+#else
      writedata(MADCTL_MV | MADCTL_BGR);
+#endif
      _width  = HX8357_TFTHEIGHT;
      _height = HX8357_TFTWIDTH;
      break;
    case 2: // Inverter portrait
+#ifdef ILI9486
+     writedata (0xD8);
+#else
      writedata( MADCTL_BGR | MADCTL_GS);
+#endif
      _width  = HX8357_TFTWIDTH;
      _height = HX8357_TFTHEIGHT;
      break;
    case 3: // Inverted landscape
+#ifdef ILI9486
+     writedata (0xA8);
+#else
      writedata(MADCTL_MV | MADCTL_BGR | MADCTL_SS | MADCTL_GS);
+#endif
      _width  = HX8357_TFTHEIGHT;
      _height = HX8357_TFTWIDTH;
      break;

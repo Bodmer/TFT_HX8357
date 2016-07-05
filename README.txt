@@ -1,5 +1,5 @@
 This is a standalone library that contains both graphics functions
-plus the TFT HX8357B/C and HX8357B/c and ILI9481 drivers.
+plus the TFT HX8357B, HX8357C, ILI9481 and ILI9486 drivers.
 
 This library has been derived from the Adafruit_GFX and driver library with
 further code snippets from other contributing authors.

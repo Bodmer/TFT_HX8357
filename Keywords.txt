@@ -28,11 +28,11 @@ invertDisplay		KEYWORD2
 
 drawCircle			KEYWORD2
 drawCircleHelper	KEYWORD2
-fillCircle	KEYWORD2
+fillCircle			KEYWORD2
 fillCircleHelper	KEYWORD2
 
-drawEllipse		KEYWORD2
-fillEllipse		KEYWORD2
+drawElipse			KEYWORD2
+fillElipse			KEYWORD2
 
 drawTriangle		KEYWORD2
 fillTriangle		KEYWORD2

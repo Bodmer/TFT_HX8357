@@ -71,9 +71,17 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 
 
 //These define the ports and port bits used for the write, chip select (CS) and data/command (RS) lines
-#define WR_L PORTG&=~_BV(2)
-#define WR_H PORTG|=_BV(2)
-#define WR_STB PORTG&=~_BV(2);PORTG|=_BV(2)
+#define WR_L PORTG&=~_BV(2);
+
+// We need a slower write strobe for the ILI9488
+#ifdef ILI9486
+  #define ILI9481
+  #define WR_H PORTG&=~_BV(2);PORTG&=~_BV(2);PORTG|=_BV(2);
+  #define WR_STB PORTG&=~_BV(2);PORTG&=~_BV(2);PORTG|=_BV(2);
+#else
+  #define WR_H PORTG|=_BV(2);
+  #define WR_STB PORTG&=~_BV(2);PORTG|=_BV(2);
+#endif
 
 // Chip select must be toggled during setup
 #define SETUP_CS_H PORTG|=_BV(1)

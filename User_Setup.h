@@ -1,18 +1,19 @@
-//                            USER DEFINED SETTINGS V5
-//              This library supports the Mega and HX8357B/C display drivers only
+//                            USER DEFINED SETTINGS V6
+//  This library supports the Mega and HX8357B/C, ILI9481 and ILI9486 display drivers
 //
 //                 Set fonts to be loaded and speed up options below
 
 
 // ##################################################################################
 //
-// Define ONE driver, either HX8357B, HX8357C or ILI9481
+// Define ONE driver, either HX8357B, HX8357C, ILI9481 or ILI9486
 //
 // ##################################################################################
 
 #define HX8357B
 //#define HX8357C
 //#define ILI9481
+//#define ILI9486
 
 // ##################################################################################
 //
@@ -82,7 +83,7 @@
 // This only speeds things up a little (0 - 2%)
 // We can do this safely as the CS line is not shared with other functions
 
-#define KEEP_CS_LOW
+//#define KEEP_CS_LOW
 
 
 // ##################################################################################
