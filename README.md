@@ -1,6 +1,6 @@
 # TFT_HX8357
 
-An Arduino IDE compatible graphics and fonts library for Mega with a drivers for the HX8357B, HX8357C, ILI9481 and ILI9486 based TFT displays with a 16 bit parallel interface.
+An Arduino IDE compatible graphics and fonts library for Mega with a drivers for the HX8357B, HX8357C, ILI9481 and ILI9486 based TFT displays with a 16 bit parallel interface. This library will not run on an UNO and it does not support 8 bit UNO shields.
 
 The library contains proportional fonts, different sizes can be enabled/disabled at compile time to optimise the use of FLASH memory.  The library has been tested with the Mega.
 
