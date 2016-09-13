@@ -76,7 +76,7 @@ swap(T& a, T& b) { T t = a; a = b; b = t; }
 // We need a slower write strobe for the ILI9488
 #ifdef ILI9486
   #define ILI9481
-  #define WR_H PORTG&=~_BV(2);PORTG&=~_BV(2);PORTG|=_BV(2);
+  #define WR_H PORTG&=~_BV(2);PORTG|=_BV(2);
   #define WR_STB PORTG&=~_BV(2);PORTG&=~_BV(2);PORTG|=_BV(2);
 #else
   #define WR_H PORTG|=_BV(2);
