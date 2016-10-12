@@ -15,8 +15,8 @@ TFT_HX8357 tft = TFT_HX8357(); // Invoke custom library
 #include <SD.h>
 
 // We can use the SdFat library instead and it will be a bit faster, uncomment next 2 lines
-#include <SdFat.h>           // Use the SdFat library for the Due
-SdFat SD;                    // Permit SD function call compatibility with no sketch changes :-)
+//#include <SdFat.h>           // Use the SdFat library for the Due
+//SdFat SD;                    // Permit SD function call compatibility with no sketch changes :-)
 
 // SD chip select
 #define SDC_CS 53
