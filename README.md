@@ -16,10 +16,8 @@ The 3.2" HX8357B display I use can be found here:
 
 http://www.banggood.com/3_2-Inch-320-X-480-TFT-LCD-Display-Module-Support-Arduino-Mega2560-p-963574.html
 
-or here for the HX8357C based 3.0" display:
+This HX8357B based display does appear to have a bug in the silicon of the driver chip as it sometimes generates spurious pixels on the display. The only way around this is to redraw the whole screen occasionally to wipe out the duff ones, this is most noticeable for intensive updates in small screen areas (e.g. in ring meter sketch). So my suggestion is to go for the next revision driver, the HX8357C with 3" TFT which does not exhibit the same problem:
 
 http://www.banggood.com/3_0-Inch-320-X-480-TFT-LCD-Display-Module-Support-Arduino-Mega2560-p-963573.html
-
-Soon a dedicated Instructable will be available to document the library features, until then do explore the example sketches.
 
 Have fun!
