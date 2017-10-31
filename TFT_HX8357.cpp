@@ -2198,8 +2198,9 @@ int16_t TFT_HX8357::drawChar(uint16_t uniCode, int16_t x, int16_t y, int16_t fon
             PORTA = th; PORTC = tl;
             if (ts) {
               tnp = np;
-              // textsize > 1 so pixel count will be a multiple of 4
-              while (tnp) { tnp-=4; WR_STB;WR_STB;WR_STB;WR_STB; }
+              // textsize > 1 so at least 4 pixels to draw
+              while (tnp > 3) { tnp-=4; WR_STB;WR_STB;WR_STB;WR_STB; }
+              while (tnp--) WR_STB;
             }
             else { WR_L; WR_H; }
 
