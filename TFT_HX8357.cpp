@@ -604,8 +604,8 @@ void TFT_HX8357::fillEllipse(int16_t x0, int16_t y0, int16_t rx, int16_t ry, uin
   if (rx<2) return;
   if (ry<2) return;
   int16_t x, y;
-  int32_t rx2 = rx * rx;
-  int32_t ry2 = ry * ry;
+  int32_t rx2 = (int32_t)rx * (int32_t)rx;
+  int32_t ry2 = (int32_t)ry * (int32_t)ry;
   int32_t fx2 = 4 * rx2;
   int32_t fy2 = 4 * ry2;
   int32_t s;
